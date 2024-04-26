@@ -1,6 +1,6 @@
 import express from 'express'
-import {searchPosts} from '../../Controllers/SearchController'
+import {searchPosts} from '../../Controllers/Search/SearchController.js'
 const searchRoute = express.Router()
 
-searchRoute.get('/posts/searchPost/search?q=', searchPosts)
+searchRoute.get('/search/posts', searchPosts)
 export default searchRoute

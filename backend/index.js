@@ -14,6 +14,8 @@ import CommentsRouter from "./src/Routes/Comments/CommentsRoute.js"
 import ReplyRoutes from "./src/Routes/Comments/RepliesRoute.js"
 // like dislike routes 
 import likeDislikePostRouter from "./src/Routes/Likes/LikesRoute.js"
+// search Posts
+import searchRoute from "./src/Routes/Search/SearchRoute.js"
 
 dotenv.config()
 const port = 3000
@@ -28,5 +30,6 @@ app.use(CategoryRouter)
 app.use(CommentsRouter)
 app.use(ReplyRoutes)
 app.use(likeDislikePostRouter)
+app.use(searchRoute)
 
 app.listen(port, () => console.log(`Server running on port ${port}...`))
