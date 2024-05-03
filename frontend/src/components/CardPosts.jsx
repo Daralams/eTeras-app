@@ -1,53 +1,21 @@
 import axios from 'axios'
 import {jwtDecode} from 'jwt-decode'
 import React, {useState, useEffect} from 'react'
-import {Link, useNavigate, useParams} from 'react-router-dom'
+import {Link, useParams} from 'react-router-dom'
 import moment from 'moment'
 // likes unlikes button 
 import { SlHeart } from "react-icons/sl"
 // import LikesBtn from '../../components/LikesBtn'
 import { GoComment } from "react-icons/go"
 
-const CardPosts = () => {
-  const [userName, setUserName] = useState("")
-  const [token, setToken] = useState("")
-  const [posts, setPosts] = useState([])
+const CardPosts = ({ userId, posts }) => {
   const {slug} = useParams()
-  const [msg, setMsg] = useState("")
-  // data like 
-  const [userId, setUserId] = useState("")
   // status liked 
   const [liked, setLiked] = useState(false)
-  const navigate = useNavigate()
   
   useEffect(() => {
-    getPosts()
     userLiked()
   }, [])
-  
-  const getPosts = async() => {
-    try {
-      // request new accesstoken
-      const getToken = await axios.get('http://localhost:3000/token')
-      
-      const decoded = jwtDecode(getToken.data[1].RefreshToken)
-      setUserName(decoded.userName)
-      setUserId(decoded.userId)
-      
-      // request page using accessToken
-      const response = await axios.get("http://localhost:3000/posts"
-      ,{ headers: { Authorization: `Bearer ${getToken.data[0].accessToken}`} 
-      })
-      setToken(getToken.data.accessToken)
-      setPosts(response.data[1].data)
-      // console.log(response.data[1].data)
-    }catch (error) {
-      if(error.response) {
-        setMsg(error.response.data.error)
-        navigate('/login')
-      }
-    }
-  }
   
   const likeDislike = async(id) => {
       const postId = id
@@ -55,7 +23,7 @@ const CardPosts = () => {
         postId,
         userId
       })
-      getPosts()
+      // getPosts()
       console.log(liked)
   }
   
@@ -103,17 +71,15 @@ const CardPosts = () => {
   return (
     <>
     <div className="mx-2 mb-3">
-    <p className="p-5 text-lg">{msg}</p>
-    <div className="flex justify-center">
+    <div className="mt-3 flex justify-center">
       <div className="grid grid-cols-1 md:grid-cols-4 xl:grid-cols-5 gap-2">
         {posts.map(post => (
       <div className="w-full border-2 rounded-md p-2 hover:shadow-lg" key={post.id}>
-  
        <div className="flex justify-between items-center w-full mb-2">
        <div className="flex gap-2 items-center">
          <p className="flex justify-center items-center w-[30px] h-[30px] p-2 bg-white border-[1px] font-mono border-indigo-400 rounded-full">{post.user.username[0]}</p>
          <div className="mt-2">
-           <p className="text-[12px] font-mono font-bold">{post.user.username}</p>
+           <Link to={`/search/author/${post.user.id}/${post.user.username}`} className="text-[12px] font-mono font-bold">{post.user.username}</Link>
            <p className="text-[10px] text-slate-400 mb-2">{moment(post.createdAt).format('MMMM dddd YYYY')}</p>
          </div>
         </div>
@@ -135,7 +101,6 @@ const CardPosts = () => {
          <button className="text-2xl"><GoComment/></button>
         </div>
         <p className="mt-1.5 text-[14px]">{post.likes.length} likes</p>
-      
       </div>
       </div>
     </div>

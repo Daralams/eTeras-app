@@ -2,6 +2,7 @@ import axios from 'axios'
 import React, {useState, useEffect} from 'react'
 import {NavLink, useNavigate} from 'react-router-dom'
 import ThemeModeBtn from './ThemeModeBtn'
+import SearchInput from './SearchInput'
 //icons 
 import { HiMenuAlt1 } from "react-icons/hi";
 import { CgClose } from "react-icons/cg";
@@ -10,11 +11,13 @@ import { BiSolidBookContent } from "react-icons/bi";
 import { CiLogin } from "react-icons/ci";
 import { CiLogout } from "react-icons/ci";
 import { IoHome } from "react-icons/io5";
+import { BiSearchAlt } from "react-icons/bi";
 
 function Navbar () {
   const [isLoggin, setIsLoggin] = useState(true)
   const [refreshToken, setRefreshToken] = useState("")
   const [open, setOpen] = useState({ transform: 'translateX(-100%)'})
+  const [searchBtnClick, setSearchBtnClick] = useState(false)
   const navigate = useNavigate()
   
   useEffect(() => {
@@ -57,12 +60,17 @@ function Navbar () {
     }
   }
   
+  const handleSearchBtn = () => {
+    setSearchBtnClick(!searchBtnClick)
+  }
+  
   return (
+    <>
     <div className="p-4 bg-indigo-600">
       <div className="flex gap-3">
       <div className="flex items-center gap-2">
          <button className="text-2xl text-white bg-transparent" onClick={handleClick}><HiMenuAlt1 /></button>
-         <div className="bg-indigo-600 block fixed left-0 top-0 bottom-0 w-3/5 leading-[60px] h-screen transition-transform duration-500 ease-in-out z-10" style={open}>
+         <div className="bg-indigo-600 block fixed left-0 top-0 bottom-0 w-3/5 leading-[60px] h-screen transition-transform duration-500 ease-in-out z-50" style={open}>
          <div className="flex items-center justify-end">
             <button className="flex items-center justify-end py-4 px-3 text-2xl text-white bg-transparent" onClick={handleClick}><CgClose/></button>
          </div>
@@ -81,11 +89,16 @@ function Navbar () {
       
         <div className="flex justify-between items-center w-full">
           <NavLink to="/" className="text-2xl font-bold text-white">Si Blogger</NavLink>
-          <ThemeModeBtn/>
+          <div className="flex items-center gap-2">
+           <button onClick={handleSearchBtn}><BiSearchAlt className="text-3xl text-white" /></button>
+            <ThemeModeBtn/>
+          </div>
         </div>
         
       </div>
     </div>
+    <SearchInput status={searchBtnClick}/>
+    </>
     )
 }
 

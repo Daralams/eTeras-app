@@ -23,8 +23,8 @@ const ThemeModeBtn = () => {
   }, [click]); // Efek hanya dijalankan saat nilai isLightMode berubah
   
   return (
-    <div className="border-2 border-white rounded-full flex items-center p-1">
-      <button className="text-white text-2xl" onClick={changeMode}>
+    <div className="flex items-center p-1">
+      <button className="text-white text-3xl font-bold" onClick={changeMode}>
       {click ? <CiDark/> : <CiLight/>
       }</button>
     </div>

@@ -206,8 +206,11 @@ const Comments = () => {
   return (
     <div className="p-4">
       <h1 className="pb-2 border-b-2 border-indigo-300">{comments.length} {comments.length < 2 ? 'Comment' : 'Comments'}</h1>
-      <div className="pt-4 border-[1px] p-2">
-      {comments.map(comment => (
+      <div className="pt-4 border-[1px] p-2"> 
+      {comments.length < 1 ? 
+        <p className="text-center">There are no comments on this post yet, be the first to comment</p> : 
+        <>
+        {comments.map(comment => (
       <div className="mb-4" key={comment.id}>
          <div className="flex gap-2">
            <div className="flex justify-center items-center p-2 w-[30px] h-[30px] rounded-full border-[1px] border-indigo-400">{comment.user.username[0]}</div>
@@ -218,7 +221,7 @@ const Comments = () => {
             <p className="text-md">{comment.message}</p>
            </div>
            {/* manipulate comment */}
-           <div className="relative my-2 mx-1">
+           <div className="relative my-2 mx-1 z-10">
              <button
              onClick={() => handleToggleDropDownComment(comment.id)}><CiMenuKebab/></button>
              {isDropdownOpen && selectedCommentId == comment.id && (
@@ -288,6 +291,8 @@ const Comments = () => {
          </div>
         </div>
       ))}
+        </>
+      }
       </div>
       {/* pop up penanda reply */}
       {isReply ? (

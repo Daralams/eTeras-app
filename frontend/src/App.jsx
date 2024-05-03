@@ -5,6 +5,8 @@ import Login from './auth/Login'
 import Register from './auth/Register'
 // views
 import LandingPage from './views/landing-page/LandingPage'
+// landing page user search result
+import LandingUserSearchResult from './views/page-other-user/LandingUserSearchResult'
 // user
 import Profile from './views/user/Profile'
 import Dashboard from './views/user/Dashboard'
@@ -33,6 +35,8 @@ const App = () => {
       <Route path={`/posts/:slug`} element={<DetailPost/>}/>
       <Route path={`/category/:slug`} element={<PostByCategory/>}/>
       <Route path={`/author/:username`} element={<PostsByAuthor/>}></Route>
+      {/* result search user */}
+      <Route path={`/search/author/:id/:username`} element={<LandingUserSearchResult/>}/>
     </Routes>
     </BrowserRouter>
     </>

@@ -32,6 +32,69 @@ export const getPostById = async(req, res) => {
   }
 }
 
+// get posts data by user id 
+export const getPostsByUserId = async (req, res) => {
+  try {
+    const validUserId = await Users.findOne({
+      attributes: ['id'],
+      where: {
+        id: req.params.id
+      }
+    })
+    
+    if(!validUserId) return res.status(404).json({msg: `Can't find user with id ${req.params.id}`})
+    
+    const request = await Posts.findAll({
+      include: [
+        {model: Users},
+        {model: Category},
+        {model: Likes}
+        ],
+      where: {
+        userId: validUserId.id
+      }
+    })
+    
+    if(request.length == 0) return res.status(404).json({msg: `User id ${validUserId.id} has no posts yet`})
+    res.status(200).json({data: request})
+  }catch (error) {
+    console.log(error.message)
+  }
+}
+
+// get posts based on most likes
+export const mostLikePosts = async (req, res) => {
+  Posts.findAll({
+  attributes: [
+    'id', 'title', 'slug', 'createdAt',
+    [Sequelize.fn('COUNT', Sequelize.col('likes.postId')), 'total_likes']
+  ],
+  include: [{
+    model: Likes,
+    where: {
+      status: 1
+    }
+  }, {
+    model: Category,
+    attributes: ['name']
+  }, {
+    model: Users,
+    attributes: ['username']
+  }],
+  group: ['posts.id'],
+  order: [[Sequelize.literal('total_likes'), 'DESC']],
+  where: {
+    userId: req.params.id
+  }
+})
+.then(posts => {
+  res.status(200).json({posts});
+})
+.catch(error => {
+  console.error('Error:', error);
+});
+}
+
 // get all data and join with other table 
 export const getPosts = async (req, res) => {
   try {
@@ -52,7 +115,7 @@ export const getPosts = async (req, res) => {
         }],
       order: [['createdAt', 'DESC']]
     })
-    if(response.length === 0) {
+    if(response.length == 0) {
       throw new Error("No Post available")
     }
     res.status(200).json([

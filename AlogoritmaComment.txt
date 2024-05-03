@@ -55,3 +55,9 @@ like dislike algorithm ~ frontend🤬🤬
 - buat kondisi perenderan warna pada button dengan cara : 
   - userid dari user yg sedang login harus sama dengan userid yg ada pada table like (status : 1)
   - postId pada table like harus sama dengan postId pada table like
+  
+  
+# Algoritma display data posts
+component CardPosts memerima 2 props()
+1. all posts
+CardPosts js 
