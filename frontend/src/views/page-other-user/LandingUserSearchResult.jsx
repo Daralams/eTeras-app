@@ -6,11 +6,10 @@ import AuthorPosts from './AuthorPosts'
 
 const LandingUserSearchResult = () => {
   const {id} = useParams()
-  const {username} = useParams()
   return (
     <>
     <SecondNavbar/>
-    <AuthorProfile username={username}/>
+    <AuthorProfile id={id}/>
     <AuthorPosts id={id}/>
     </>
     )

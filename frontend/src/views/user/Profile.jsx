@@ -34,6 +34,7 @@ const Profile = () => {
           Authorization: `Bearer ${getToken.data[0].accessToken}`
         }
       })
+      console.log(response)
       setRefreshToken(getToken.data[0].accessToken)
       setTitle(response.data.msg)
     }catch (error) {

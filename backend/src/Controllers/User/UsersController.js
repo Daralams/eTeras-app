@@ -39,3 +39,18 @@ export const userIsLoggin = async(req, res) => {
     console.error(error.message)
   }
 }
+
+// get profile other user to see profile other user account
+export const getProfileOtherUser = async(req, res) => {
+  const request = await Users.findOne({
+    attributes: { exclude: ['password', 'confirmPw', 'refresh_token', 'updatedAt'] },
+    where: {
+      id: req.params.id
+    },
+    include: {
+      model: Posts,
+      attributes: ['id']
+    }
+  })
+  res.status(200).json({userProfile: request})
+}

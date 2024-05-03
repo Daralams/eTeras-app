@@ -8,6 +8,7 @@ import CardPosts from '../../components/CardPosts'
 const AuthorPosts = ({ id }) => {
   const [posts, setPosts] = useState([])
   const [userId, setUserId] = useState("")
+  
   useEffect(() => {
     getPostsByUserId()
   }, [])

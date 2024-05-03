@@ -44,8 +44,8 @@ const SearchInput = ({ status }) => {
   return (
     <div className={`${status == true ? 'block' : 'hidden'} absolute z-20 right-2 left-2 top-20 bg-white p-3 border-[1px] rounded-md shadow-lg`}>
     <div className="flex justify-between w-full mb-3">
-      <button onClick={selectSearchAuthorForm} className="border-[1px] w-1/2 hover:border-b-indigo-400">Author</button>
-      <button onClick={selectSearchPostForm} className="border-[1px] w-1/2 hover:border-b-indigo-400">Posts</button>
+      <button onClick={selectSearchAuthorForm} className={`border-[1px] w-1/2 ${activeForm == 'searchAuthorForm' ? 'border-b-2 border-b-indigo-400' : ''}`}>Author</button>
+      <button onClick={selectSearchPostForm} className={`border-[1px] border-l-0 w-1/2 ${activeForm == 'searchPostsForm' ? 'border-b-2 border-b-indigo-400' : '' }`}>Posts</button>
     </div>
     {activeForm == "searchPostsForm" ? 
     (
