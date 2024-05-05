@@ -4,14 +4,13 @@ import {NavLink, useNavigate} from 'react-router-dom'
 import ThemeModeBtn from './ThemeModeBtn'
 import SearchInput from './SearchInput'
 //icons 
-import { HiMenuAlt1 } from "react-icons/hi";
-import { CgClose } from "react-icons/cg";
-import { FaUser } from "react-icons/fa";
-import { BiSolidBookContent } from "react-icons/bi";
-import { CiLogin } from "react-icons/ci";
-import { CiLogout } from "react-icons/ci";
-import { IoHome } from "react-icons/io5";
-import { BiSearchAlt } from "react-icons/bi";
+import { HiMenuAlt1 } from "react-icons/hi"
+import { CgClose } from "react-icons/cg"
+import { BiSolidBookContent } from "react-icons/bi"
+import { CiLogin } from "react-icons/ci"
+import { CiLogout } from "react-icons/ci"
+import { IoHome } from "react-icons/io5"
+import { BiSearchAlt } from "react-icons/bi"
 
 function Navbar () {
   const [isLoggin, setIsLoggin] = useState(true)
@@ -80,7 +79,6 @@ function Navbar () {
           to="/dashboard" 
           className={({isActive}) => `pl-6 w-full text-white flex items-center gap-2  ${isActive ? "hover:bg-indigo-700" : ""}`}><IoHome/> Dashboard</NavLink>
           <NavLink to="/posts" className={({isActive}) => `pl-6 w-full text-white flex items-center gap-2  ${isActive ? "hover:bg-indigo-700" : ""}`}><BiSolidBookContent /> Posts</NavLink>
-          <NavLink to="/profile" className={({isActive}) => ` pl-6 w-full text-white flex items-center gap-2  ${isActive ? "hover:bg-indigo-700" : ""}`}><FaUser/> Profile</NavLink>
           <button className="pl-6 w-full bg-transparent text-white flex items-center gap-2 hover:bg-indigo-700" onClick={logout}><CiLogout /> Logout</button>
            </>
           ) : (<NavLink to ="/login" className="pl-6 w-full text-white flex items-center gap-2 hover:hover:bg-indigo-700"><CiLogin /> Login</NavLink>)}

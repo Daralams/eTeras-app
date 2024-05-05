@@ -4,6 +4,7 @@ import {Sequelize} from 'sequelize'
 import Users from '../../Models/UsersModel.js'
 import Posts from '../../Models/PostsModel.js'
 import Category from '../../Models/CategoryModel.js'
+import Likes from '../../Models/LikesModel.js'
 
 export const dashboard = async (req, res) => {
   try {
@@ -39,6 +40,25 @@ export const userIsLoggin = async(req, res) => {
     console.error(error.message)
   }
 }
+
+// activity user is loggin. (like posts and comments) 
+export const favoritedPosts = async(req, res) => {
+  try {
+    const getFavPosts = await Users.findOne({
+      attributes: ['username'],
+      where: {
+        id: req.params.id
+      },
+      include: {
+        model: Likes,
+        include: {model: Posts}
+      }
+    })
+    res.status(200).json({result: getFavPosts})
+  }catch (error) {
+    console.log(error.message)
+  }
+} 
 
 // get profile other user to see profile other user account
 export const getProfileOtherUser = async(req, res) => {

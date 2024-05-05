@@ -8,7 +8,6 @@ import LandingPage from './views/landing-page/LandingPage'
 // landing page user search result
 import LandingUserSearchResult from './views/page-other-user/LandingUserSearchResult'
 // user
-import Profile from './views/user/Profile'
 import Dashboard from './views/user/Dashboard'
 import CreatePost from './views/user/CreatePost'
 import UpdatePost from './views/user/UpdatePost'
@@ -29,7 +28,6 @@ const App = () => {
       <Route path="/dashboard" element={<Dashboard/>}/>
       <Route path="/create-post" element={<CreatePost/>}/>
       <Route path="/edit-post/:id" element={<UpdatePost/>}/>
-      <Route path="/profile" element={<Profile/>}/>
       <Route path="/" element={<LandingPage/>}/>
       <Route path="/posts" element={<Posts/>}/>
       <Route path={`/posts/:slug`} element={<DetailPost/>}/>

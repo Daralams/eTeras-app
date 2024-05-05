@@ -55,10 +55,10 @@ const Profile = () => {
          <p className="bg-slate-100 p-2 rounded-sm mb-4">{userName}</p>
          <label for="email" className="text-lg">Email : </label>
          <p className="bg-slate-100 p-2 rounded-sm mb-4">{email}</p>
-         <label for="email" className="text-lg">Register at : </label>
-         <p className="bg-slate-100 p-2 rounded-sm">{moment(registerAt).format('MMMM dddd YYYY')}</p>
-         {/* Masih belum pasti mw taro button logout disini apa gak*/}
-         <button className="mt-6 bg-indigo-500 text-white font-bold w-full py-2 rounded-md hover:bg-red-300">Logout</button>
+         <label for="email" className="text-lg">Joined at : </label>
+         <p className="bg-slate-100 p-2 rounded-sm">{moment(registerAt).format('MMMM YYYY')}</p>
+         {/* Masih belum pasti mw taro button logout disini apa gak, sementara btn buat lihat activitas dlu! */}
+         <Link to="/profile/activity" className="mt-6 bg-indigo-500 text-white font-bold w-full py-2 rounded-md hover:bg-indigo-300">Activity</Link>
        </div>
       </div>
     </div>

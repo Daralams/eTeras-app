@@ -61,7 +61,7 @@ export const login = async (req, res) => {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000
     })
-    // console.log('Refresh token: ', refreshToken)
+    console.log('Refresh token: ', refreshToken)
     // console.log('Access token: ', accessToken)
     console.log('Cookies: ', res.getHeaders()['set-cookie'])
     // console.log(res.cookie)

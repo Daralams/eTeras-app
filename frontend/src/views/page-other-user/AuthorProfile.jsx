@@ -36,7 +36,7 @@ const AuthorProfile = ({ id }) => {
            <p>25k Followers</p>
            <p>5k Following</p>
          </div>
-         <p className="py-2 text-[15px]">Joined at {moment(user.createdAt).format('MMMM dddd YYYY')}</p>
+         <p className="py-2 text-[15px]">Joined at {moment(user.createdAt).format('MMMM YYYY')}</p>
          <div className="mt-3 flex gap-2">
           <button className="px-4 py-2 bg-blue-500 text-white rounded">Follow</button>
           <button className="px-4 py-2 bg-blue-500 text-white rounded">Messege</button>
