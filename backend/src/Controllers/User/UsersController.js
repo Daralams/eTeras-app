@@ -33,28 +33,21 @@ export const getUser = async (req, res) => {
   }
 }
 
-export const userIsLoggin = async(req, res) => {
-  try {
-    res.status(200).json({msg: 'Your profile'})
-  }catch(error) {
-    console.error(error.message)
-  }
-}
-
 // activity user is loggin. (like posts and comments) 
 export const favoritedPosts = async(req, res) => {
   try {
-    const getFavPosts = await Users.findOne({
-      attributes: ['username'],
+    const getLikesData = await Likes.findAll({
+      attributes: ['postId', 'userId', 'status'],
       where: {
-        id: req.params.id
+        userId: req.params.userId,
+        status: 1
       },
       include: {
-        model: Likes,
-        include: {model: Posts}
+        model: Posts,
+        include: [{model: Users}, {model: Category}]
       }
     })
-    res.status(200).json({result: getFavPosts})
+    res.status(200).json({data: getLikesData})
   }catch (error) {
     console.log(error.message)
   }

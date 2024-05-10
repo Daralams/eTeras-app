@@ -9,6 +9,7 @@ import LandingPage from './views/landing-page/LandingPage'
 import LandingUserSearchResult from './views/page-other-user/LandingUserSearchResult'
 // user
 import Dashboard from './views/user/Dashboard'
+import FavoritePosts from './views/user/FavoritePosts'
 import CreatePost from './views/user/CreatePost'
 import UpdatePost from './views/user/UpdatePost'
 // post
@@ -26,6 +27,7 @@ const App = () => {
       <Route path="/login" element={<Login/>}/>
       <Route path="/register" element={<Register/>}/>
       <Route path="/dashboard" element={<Dashboard/>}/>
+      <Route path="/dashboard/favorite-posts" element={<FavoritePosts/>}/>
       <Route path="/create-post" element={<CreatePost/>}/>
       <Route path="/edit-post/:id" element={<UpdatePost/>}/>
       <Route path="/" element={<LandingPage/>}/>

@@ -90,7 +90,7 @@ const Dashboard = () => {
         <li className="flex items-center gap-2 text-[15px] font-semibold"><MdEmail className="text-lg"/> {email}</li>
         <li className="mt-2 flex items-center gap-2 text-[15px] font-semibold"><MdOutlineDateRange className="text-lg"/>  Joined at {moment(joinedDate).format("MMMM YYYY")}</li>
         <li className="mt-2 text-[15px] font-semibold">
-          <Link to="/dashboard/favorite" className="flex items-center gap-2">
+          <Link to="/dashboard/favorite-posts" className="flex items-center gap-2">
           <SlHeart className="text-lg"/> Favorite</Link>
         </li>
         <li className="mt-2 text-[15px] font-semibold">
