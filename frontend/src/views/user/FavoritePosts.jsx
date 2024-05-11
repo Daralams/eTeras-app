@@ -2,7 +2,7 @@ import axios from 'axios'
 import {jwtDecode} from 'jwt-decode'
 import moment from 'moment'
 import React, { useState, useEffect } from 'react'
-import {Link} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import SecondNavbar from '../../components/SecondNavbar'
 import CardPosts from '../../components/CardPosts'
 import { CiMenuKebab } from "react-icons/ci"
@@ -14,6 +14,7 @@ const FavoritePosts = () => {
   const [token, setToken] = useState("")
   const [showRemovePopup, setShowRemovePopup] = useState(false)
   const [selectedPost, setSelectedPost] = useState(null)
+  const navigate = useNavigate()
   
   useEffect(() => {
     refreshToken()
@@ -33,7 +34,10 @@ const FavoritePosts = () => {
       setPosts(postsData)
       console.log(postsData)
     }catch(error) {
-      console.log(error.message)
+      console.log(error)
+      if(error.response.status == 401) {
+        navigate('/login')
+      }
     }
   }
   
