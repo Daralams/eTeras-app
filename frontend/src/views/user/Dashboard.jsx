@@ -94,7 +94,7 @@ const Dashboard = () => {
           <SlHeart className="text-lg"/> Favorite</Link>
         </li>
         <li className="mt-2 text-[15px] font-semibold">
-          <Link to="/dashboard/your-comments" className="flex items-center gap-2">
+          <Link to="/dashboard/comments-history" className="flex items-center gap-2">
           <GoComment className="text-lg"/> Comments</Link>
         </li>
        </ul>

@@ -4,12 +4,12 @@ import moment from 'moment'
 import React, { useState, useEffect } from 'react'
 import {Link, useNavigate} from 'react-router-dom'
 import SecondNavbar from '../../components/SecondNavbar'
-import CardPosts from '../../components/CardPosts'
+// import CardPosts from '../../components/CardPosts'
 import { CiMenuKebab } from "react-icons/ci"
 
 const FavoritePosts = () => {
   const [userId, setUserId] = useState(null)
-  const [usernameIsLoggin, setUsernameIsLoggin] = useState("")  
+  const [usernameIsLoggin, setUsernameIsLoggin] = useState("")
   const [posts, setPosts] = useState([])
   const [token, setToken] = useState("")
   const [showRemovePopup, setShowRemovePopup] = useState(false)

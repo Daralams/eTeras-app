@@ -2,6 +2,7 @@ import express from 'express'
 import {
   dashboard,
   favoritedPosts,
+  commentsHistory,
   getUser,
   getProfileOtherUser
 } from '../../Controllers/User/UsersController.js'
@@ -11,6 +12,7 @@ import {verifyToken} from '../../Middleware/verifyToken.js'
 const user = express.Router()
 user.get('/dashboard', verifyToken, dashboard)
 user.get('/profile/:userId/fav-posts', favoritedPosts)
+user.get('/profile/:userId/comments-history', commentsHistory)
 user.get('/author/:username', getUser)
 user.get('/token', refreshToken)
 user.get('/other-profile-user/:id', getProfileOtherUser)
