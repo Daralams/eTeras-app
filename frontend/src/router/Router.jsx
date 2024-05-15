@@ -23,25 +23,6 @@ import PostByCategory from '../views/posts/PostByCategory'
 import PostsByAuthor from '../views/posts/PostsByAuthor'
 
 const Router = () => {
-  const [accessToken, setAccessToken] = useState("")
-  const [refreshToken, setRefreshToken] = useState("")
-  const [statusCode, setStatusCode] = useState(null)
-  
-  useEffect(() => {
-    requestToken()
-  }, [])
-  
-  const requestToken = async() => {
-    try {
-      const response = await axios.get("http://localhost:3000/token")
-      setAccessToken(response.data[0].accessToken)
-      setRefreshToken(response.data[1].RefreshToken)
-    }catch (error) {
-      if(error.response.status == 401) {
-        setStatusCode(401)
-      }
-    }
-  }
   return (
     <>
     <BrowserRouter>
@@ -50,9 +31,7 @@ const Router = () => {
       <Route path="/register" element={<Register/>}/>
       <Route path="/dashboard" element={<Dashboard/>}/>
       <Route path="/dashboard/favorite-posts" element={<FavoritePosts/>}/>
-      <Route path="/dashboard/comments-history" 
-      element={
-      <CommentsHistory access_token={accessToken} refresh_token={refreshToken} authorized={statusCode}/>}/>
+      <Route path="/dashboard/comments-history" element={<CommentsHistory/>}/>
       <Route path="/create-post" element={<CreatePost/>}/>
       <Route path="/edit-post/:id" element={<UpdatePost/>}/>
       <Route path="/" element={<LandingPage/>}/>

@@ -1,35 +1,34 @@
 import axios from 'axios'
-import { jwtDecode } from 'jwt-decode'
 import moment from 'moment'
 import React, { useState, useEffect } from "react" 
 import { Link, useNavigate } from 'react-router-dom'
+
+// Middleware
+import { auth } from '../../middleware/auth.js'
+// components
 import SecondNavbar from '../../components/SecondNavbar'
 
-const CommentsHistory = ({ access_token, refresh_token, authorized }) => {
-  const [userId, setUserId] = useState(null)
-  const [usernameIsLoggin, setUsernameIsLoggin] = useState("")
+const CommentsHistory = () => {
+  const [usernameIsLoggin, setUsernameIsLoggin] = useState('')
   const [posts, setPosts] = useState([])
   const navigate = useNavigate()
   
-  if(authorized == 401) {
-    navigate("/login")
-  }
-  
   useEffect(() => {
     commentsHistory()
-  }, [userId], [])
+  }, [])
   
   const commentsHistory = async() => {
     try {
-      const decodeToken = jwtDecode(refresh_token)
-      console.log(decodeToken)
-      setUserId(decodeToken.userId)
-      setUsernameIsLoggin(decodeToken.userName)
-      console.log("User id: " + userId)
+      const getToken = await auth()
+      const userId = getToken.userId
+      setUsernameIsLoggin(getToken.usernameIsLoggin)
       const response = await axios.get(`http://localhost:3000/profile/${userId}/comments-history`)
       setPosts(response.data.posts)
-      console.log(response.data.posts)
     }catch(error) {
+      // msh gabisa ngaff
+      // if(error.getToken.status == 401) {
+      //   navigate('/login')
+      // }
       console.log(error.message)
     }
   }
@@ -44,7 +43,7 @@ const CommentsHistory = ({ access_token, refresh_token, authorized }) => {
             <p className="text-2xl font-bold font-mono mb-2">Your Comments</p>
             <p className="text-md font-semibold font-mono">{posts.length} {posts.length < 2 ? 'Comment' : 'Comments'}</p>
           </div>
-          
+        
         <div className="col-span-1">
           {/* post */}
           {posts.map(post => (
@@ -87,6 +86,7 @@ const CommentsHistory = ({ access_token, refresh_token, authorized }) => {
           </div>
           ))}
         </div>
+        
        </div>
      </div>
     </>
