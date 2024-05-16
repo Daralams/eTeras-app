@@ -2,7 +2,7 @@ import axios from 'axios'
 import {jwtDecode} from 'jwt-decode'
 import React, {useState, useEffect} from 'react'
 // components
-import Navbar from '../../components/Navbar'
+import SecondNavbar from '../../components/SecondNavbar'
 import Footer from '../../components/Footer'
 import moment from 'moment'
 import {Link, useNavigate, useParams} from 'react-router-dom'
@@ -64,7 +64,7 @@ const Dashboard = () => {
   
   return (
     <>
-    <Navbar/>
+    <SecondNavbar title="Dashboard"/>
     <div className="p-4">
       <div className="flex flex-wrap gap-8 justify-center mt-4 border-[1px] rounded-t-md">
        <div className="mt-4 flex justify-center items-center w-[85px] h-[85px] lg:w-[100px] lg:h-[100px] bg-indigo-500 text-white text-3xl font-bold font-mono rounded-full">{userName[0]}</div>

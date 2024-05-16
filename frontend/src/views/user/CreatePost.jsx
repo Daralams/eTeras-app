@@ -3,7 +3,7 @@ import axios from "axios"
 import {jwtDecode} from 'jwt-decode'
 import {Link} from "react-router-dom"
 // components 
-import Navbar from '../../components/Navbar'
+import SecondNavbar from '../../components/SecondNavbar'
 import Footer from '../../components/Footer'
 import { FaSave } from "react-icons/fa";
 import { IoSend } from "react-icons/io5";
@@ -75,7 +75,7 @@ const CreatePost = () => {
   
   return (
     <>
-    <Navbar/>
+    <SecondNavbar/>
     <div className="flex justify-center">
       <div className="mt-5 mb-5 w-4/5 rounded shadow-md p-4 lg:w-3/5">
         <form onSubmit={createPost}>

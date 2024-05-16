@@ -7,6 +7,7 @@ import SearchInput from './SearchInput'
 import { HiMenuAlt1 } from "react-icons/hi"
 import { CgClose } from "react-icons/cg"
 import { BiSolidBookContent } from "react-icons/bi"
+import { SiGooglemessages } from "react-icons/si"
 import { CiLogin } from "react-icons/ci"
 import { CiLogout } from "react-icons/ci"
 import { IoHome } from "react-icons/io5"
@@ -79,6 +80,7 @@ function Navbar () {
           to="/dashboard" 
           className={({isActive}) => `pl-6 w-full text-white flex items-center gap-2  ${isActive ? "hover:bg-indigo-700" : ""}`}><IoHome/> Dashboard</NavLink>
           <NavLink to="/posts" className={({isActive}) => `pl-6 w-full text-white flex items-center gap-2  ${isActive ? "hover:bg-indigo-700" : ""}`}><BiSolidBookContent /> Posts</NavLink>
+          <NavLink to="/chats" className={({isActive}) => `pl-6 w-full text-white flex items-center gap-2  ${isActive ? "hover:bg-indigo-700" : ""}`}><SiGooglemessages /> Chats</NavLink>
           <button className="pl-6 w-full bg-transparent text-white flex items-center gap-2 hover:bg-indigo-700" onClick={logout}><CiLogout /> Logout</button>
            </>
           ) : (<NavLink to ="/login" className="pl-6 w-full text-white flex items-center gap-2 hover:hover:bg-indigo-700"><CiLogin /> Login</NavLink>)}
@@ -86,7 +88,7 @@ function Navbar () {
         </div>
       
         <div className="flex justify-between items-center w-full">
-          <NavLink to="/" className="text-2xl font-bold text-white">Si Blogger</NavLink>
+          <NavLink to="/" className="text-2xl font-bold font-mono text-white">SiBlogger</NavLink>
           <div className="flex items-center gap-2">
            <button onClick={handleSearchBtn}><BiSearchAlt className="text-3xl text-white" /></button>
             <ThemeModeBtn/>

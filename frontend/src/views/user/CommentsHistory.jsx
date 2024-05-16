@@ -35,7 +35,7 @@ const CommentsHistory = () => {
   
   return (
     <>
-      <SecondNavbar/>
+      <SecondNavbar title="Comments"/>
       <div className="m-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div className="h-auto md:col-span-1 p-4">

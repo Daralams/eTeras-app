@@ -1,5 +1,3 @@
-// Percobaan ngaff
-import axios from 'axios'
 import React, { useState, useEffect } from 'react'
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
@@ -21,6 +19,9 @@ import Posts from '../views/posts/Posts'
 import DetailPost from '../views/posts/DetailPost'
 import PostByCategory from '../views/posts/PostByCategory'
 import PostsByAuthor from '../views/posts/PostsByAuthor'
+// chats 
+import MyChats from '../views/realtime-chat/MyChats'
+import ChatWindow from '../views/realtime-chat/ChatWindow'
 
 const Router = () => {
   return (
@@ -41,6 +42,8 @@ const Router = () => {
       <Route path={`/author/:username`} element={<PostsByAuthor/>}></Route>
       {/* result search user */}
       <Route path={`/search/author/:id/:username`} element={<LandingUserSearchResult/>}/>
+      <Route path="/chats" element={<MyChats/>}/>
+      <Route path="/chats/id-obrolan" element={<ChatWindow/>}/>
     </Routes>
     </BrowserRouter>
     </>

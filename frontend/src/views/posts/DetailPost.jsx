@@ -3,7 +3,7 @@ import {useParams, Link, useNavigate} from "react-router-dom"
 import axios from "axios"
 import moment from "moment"
 // components
-import Navbar from '../../components/Navbar'
+import SecondNavbar from '../../components/SecondNavbar'
 import Comments from "../../components/Comments"
 import Footer from '../../components/Footer'
 
@@ -34,7 +34,7 @@ const DetailPost = () => {
 
   return (
     <>
-    <Navbar/>
+    <SecondNavbar/>
     <div className="h-auto mb-20">
     {postDetail.map(post => (
     <div className="p-4" key={post.id}>

@@ -1,6 +1,7 @@
 // This section use for display profile author selected 
 import axios from 'axios'
 import React, {useState, useEffect} from 'react'
+import { Link } from 'react-router-dom'
 import moment from 'moment'
 
 const AuthorProfile = ({ id }) => {
@@ -39,7 +40,7 @@ const AuthorProfile = ({ id }) => {
          <p className="py-2 text-[15px]">Joined at {moment(user.createdAt).format('MMMM YYYY')}</p>
          <div className="mt-3 flex gap-2">
           <button className="px-4 py-2 bg-blue-500 text-white rounded">Follow</button>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded">Messege</button>
+          <Link to="/chats/id-obrolan" className="px-4 py-2 bg-blue-500 text-white rounded">Messege</Link>
         </div>
        </div>
      </div>
