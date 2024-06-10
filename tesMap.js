@@ -81,3 +81,33 @@ const posts = [
   
   const name = "vanda margraf"
   console.log(name[0])
+  
+  import { Sequelize } from 'sequelize'
+import Conversation from '../../Models/ConversationModel.js'
+
+export const getAllConversationByUserIsLoggin = async(req, res) => {
+  try {
+    const response = await Conversation.findAll({
+      where: {
+        [Sequelize.Op.or]: [
+          { userId_1: req.params.userId },
+          { userId_2: req.params.userId }
+          ]
+      }
+    })
+    res.status(200).json({ data: response})
+  }catch(error) {
+    console.log(error.message)
+  }
+}
+
+export const showConversationContent = async(req, res) => {
+  try {
+    const response = await Conversation.findOne({
+      where: {
+      }
+    })
+  }catch (error) {
+    
+  }
+}

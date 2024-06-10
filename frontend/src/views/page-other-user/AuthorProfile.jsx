@@ -4,25 +4,31 @@ import React, {useState, useEffect} from 'react'
 import { Link } from 'react-router-dom'
 import moment from 'moment'
 
-const AuthorProfile = ({ id }) => {
+const AuthorProfile = ({ userIdIsLoggin, id }) => {
   const [user, setUser] = useState("")
   const [countPosts, setCountPosts] = useState(null)
   // sementara ngaff
   const [profilPhoto, setProfilPhoto] = useState("")
+  const [conversationId, setConversationId] = useState("")
   
   useEffect(() => {
     getProfile()
-  }, [])
+    getConversation()
+  }, [userIdIsLoggin])
   
   const getProfile = async() => {
     const userData = await axios.get(`http://localhost:3000/other-profile-user/${id}`)
     setUser(userData.data.userProfile)
-    console.log(userData.data.userProfile)
     setCountPosts(userData.data.userProfile.posts.length)
     // get first index string for profile photo
     const username = userData.data.userProfile.username
     const firstLetter = username.charAt(0)
     setProfilPhoto(firstLetter)
+  }
+  
+  const getConversation = async() => {
+    const response = await axios.get(`http://localhost:3000/chats/content/${userIdIsLoggin}/${id}`)
+    setConversationId(response.data[1].data.id)
   }
   
   return (
@@ -40,7 +46,7 @@ const AuthorProfile = ({ id }) => {
          <p className="py-2 text-[15px]">Joined at {moment(user.createdAt).format('MMMM YYYY')}</p>
          <div className="mt-3 flex gap-2">
           <button className="px-4 py-2 bg-blue-500 text-white rounded">Follow</button>
-          <Link to="/chats/id-obrolan" className="px-4 py-2 bg-blue-500 text-white rounded">Messege</Link>
+          <Link to={`/chats/content/${id}/${conversationId ? conversationId : '$hsj59haha4pkw1js46-a'}`} className="px-4 py-2 bg-blue-500 text-white rounded">Messege</Link>
         </div>
        </div>
      </div>

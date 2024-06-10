@@ -1,39 +1,47 @@
+import io from 'socket.io-client'
+import axios from 'axios'
+import moment from 'moment'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-const ChatItem = () => {
+// middleware
+import { auth } from '../../middleware/auth.js' 
+
+const socket = io('http://localhost:3000')
+const ChatItem = ({ userIdIsLoggin }) => {
+  const [chatItems, setChatItems] = useState([])
+  
+  useEffect(() => {
+    getChatsUserIsLoggin()
+    // socket.emit('recent-chats', )
+  }, [userIdIsLoggin])
+  
+  const getChatsUserIsLoggin = async() => {
+    try {
+      const response = await axios.get(`http://localhost:3000/chats/${userIdIsLoggin}`)
+      setChatItems(response.data.data)
+      console.log(response.data.data)
+    }catch (error) {
+      console.log(error.message)
+    }
+  }
   return (
     <div className="p-2">
-      <div className="flex flex-col gap-2">
-        <Link to="/chats/id-obrolan" className="flex items-center w-full p-2 flex gap-4 hover:bg-slate-100">
-          <div className="w-[50px] h-[50px] flex justify-center items-center p-2 bg-slate-200 rounded-full">Y</div>
+      {chatItems.map(item => (
+      <div className="flex flex-col gap-2" key={item.id}>
+        <Link to={`/chats/content/${item.interlocutor.id}/${item.id}`} className="flex items-center w-full p-2 flex gap-4 hover:bg-slate-100">
+          <div className="w-[50px] h-[50px] flex justify-center items-center p-2 bg-slate-200 rounded-full">{item.interlocutor.name[0]}</div>
           <div className="w-full flex justify-between py-3">
           <div>
-            <p className="font-bold font-mono">Yayan</p>
-            <p className="text-sm">You: Jadi ga wir?</p>
+            <p className="font-bold font-mono">{item.interlocutor.name}</p>
+            <p className="text-sm">{item.recent_chat.sender_id  == userIdIsLoggin ? 'You:' : '' } {item.recent_chat.message.length <= 15 ? item.recent_chat.message : item.recent_chat.message.substr(0, 15).concat('...') }</p>
           </div>
           <div className="right-0">
-            <p className="text-sm font-extralight">2 days ago</p>
-            {/* <div className="mt-1 5 flex justify-end">
-              <p className="flex items-center justify-center right-0 w-[15px] h-[15px] p-3 text-[10px] text-white font-bold bg-indigo-600 rounded-full">2</p>
-            </div> */}
-          </div>
-        </div>
-      </Link>
-        <Link to="/chats/id-obrolan" className="flex items-center w-full p-2 flex gap-4 hover:bg-slate-100">
-          <div className="w-[50px] h-[50px] flex justify-center items-center p-2 bg-slate-200 rounded-full">V</div>
-          <div className="w-full flex justify-between py-3">
-          <div>
-            <p className="font-bold font-mono">Vanda margraf</p>
-            <p className="text-sm">Vanda: Good morning ma bro🙏</p>
-          </div>
-          <div className="right-0">
-            <p className="text-sm font-extralight">3 days ago</p>
-            <div className="mt-1.5 flex justify-end">
-              <p className="flex items-center justify-center right-0 w-[15px] h-[15px] p-3 text-[10px] text-white font-bold bg-indigo-600 rounded-full">2</p>
-            </div>
+            <p className="text-sm font-extralight">{moment(item.date).format('L')}</p>
           </div>
         </div>
       </Link>
       </div>
+      ))}
     </div>
     )
 }

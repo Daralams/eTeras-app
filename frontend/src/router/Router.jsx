@@ -43,7 +43,7 @@ const Router = () => {
       {/* result search user */}
       <Route path={`/search/author/:id/:username`} element={<LandingUserSearchResult/>}/>
       <Route path="/chats" element={<MyChats/>}/>
-      <Route path="/chats/id-obrolan" element={<ChatWindow/>}/>
+      <Route path="/chats/content/:userId/:conversation_id" element={<ChatWindow/>}/>
     </Routes>
     </BrowserRouter>
     </>

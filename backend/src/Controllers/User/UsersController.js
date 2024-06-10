@@ -17,6 +17,27 @@ export const dashboard = async (req, res) => {
   }
 }
 
+export const getUserById = async (req, res) => {
+  const response = await Users.findOne({
+    attributes: ['id', 'username'],
+    where: {
+      id: req.params.userId
+    }
+  })
+  if(!response) {
+    return res.status(404).json(
+      {
+        status: 'failed',
+        msg: 'id is not valid!'
+      })
+  }
+  res.status(200).json({
+    status: 'success',
+    msg: `User with id ${req.params.userId} : `,
+    data: response
+  })
+}
+
 export const getUser = async (req, res) => {
   try {
     const response = await Users.findAll({
