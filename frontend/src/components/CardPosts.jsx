@@ -3,12 +3,13 @@ import {jwtDecode} from 'jwt-decode'
 import React, {useState, useEffect} from 'react'
 import {Link, useParams} from 'react-router-dom'
 import moment from 'moment'
-// likes unlikes button 
+// likes dislike button 
 import { SlHeart } from "react-icons/sl"
 // import LikesBtn from '../../components/LikesBtn'
 import { GoComment } from "react-icons/go"
 
 const CardPosts = ({ userId, posts }) => {
+  const [likesLength, setLikesLength] = useState(null)
   const {slug} = useParams()
   // status liked 
   const [liked, setLiked] = useState(false)
@@ -23,8 +24,6 @@ const CardPosts = ({ userId, posts }) => {
         postId,
         userId
       })
-      // getPosts()
-      console.log(liked)
   }
   
   // msh prosses debugging

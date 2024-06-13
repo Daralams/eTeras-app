@@ -1,15 +1,17 @@
-import React, {useState, useEffect} from "react"
-import {useParams, Link, useNavigate} from "react-router-dom"
+import React, { useState, useEffect } from "react"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import moment from "moment"
+// middleware 
+import { auth } from '../../middleware/auth.js'
 // components
 import SecondNavbar from '../../components/SecondNavbar'
 import Comments from "../../components/Comments"
 import Footer from '../../components/Footer'
 
 const DetailPost = () => {
-  const [token, setToken] = useState("")
   const [postDetail, setPostDetail] = useState([])
+  const [idPost, setIdPost] = useState(null)
   const {slug} = useParams()
   const navigate = useNavigate()
   
@@ -19,12 +21,12 @@ const DetailPost = () => {
   
   const getPostBySlug = async () => {
     try {
-      const getToken = await axios.get('http://localhost:3000/token')
+      const getToken = await auth()
       const response = await axios(`http://localhost:3000/posts/${slug}`, {
-        headers: { Authorization: `Bearer ${getToken.data[0].accessToken}`} 
+        headers: { Authorization: `Bearer ${getToken.accessToken}`} 
       })
-      setToken(getToken.data.accessToken)
       setPostDetail(response.data)
+      setIdPost(response.data[0].id)
     }catch (error) {
       if(error.response) {
         navigate('/login')
@@ -44,7 +46,7 @@ const DetailPost = () => {
     </div>
     ))}
     </div>
-    <Comments/>
+    <Comments idPost={idPost}/>
     <Footer/>
     </>
     )

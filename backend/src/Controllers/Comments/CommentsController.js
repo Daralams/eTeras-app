@@ -4,6 +4,32 @@ import Users from '../../Models/UsersModel.js'
 import Comments from '../../Models/CommentsModel.js'
 import ReplyComment from '../../Models/ReplyCommentModel.js'
 
+export const getCommentsById = async(req, res) => {
+  try {
+    const response = await Comments.findAll({
+      where: { postId: req.params.postId },
+      include: [
+        { model: Users },
+        { model: ReplyComment,
+          include: { model: Users } }
+        ]
+      })
+    if(!response || response.length < 1) {
+      return res.status(404).json({
+        status: 'failed',
+        msg: `Post with id ${req.params.postId} don't have any comment!`
+      })
+    }
+    res.status(200).json({
+        status: 'success',
+        msg: `Comments and reply comments in post id: ${req.params.postId}: `,
+        data: response
+      })
+  }catch(error) {
+    console.log(error.message)
+  }
+}
+
 export const comments = async(req, res) => {
   try {
     const postId = await Posts.findOne({

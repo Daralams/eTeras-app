@@ -12,14 +12,22 @@ const ChatItem = ({ userIdIsLoggin }) => {
   
   useEffect(() => {
     getChatsUserIsLoggin()
-    // socket.emit('recent-chats', )
+    // show recent chats ~ blm bener!
+    socket.on('recent-chats', (userIdIsLoggin) => {
+      setChatItems((prevChats) => [...prevChats, userIdIsLoggin])
+    })
+    console.log(chatItems)
+    return () => socket.off('recent-chats')
   }, [userIdIsLoggin])
   
   const getChatsUserIsLoggin = async() => {
     try {
-      const response = await axios.get(`http://localhost:3000/chats/${userIdIsLoggin}`)
-      setChatItems(response.data.data)
-      console.log(response.data.data)
+      const getRecentChats = await axios.get(`http://localhost:3000/chats/${userIdIsLoggin}`)
+      setChatItems(getRecentChats.data.data)
+      console.log(getRecentChats.data.data)
+      
+      // send userIdIsLoggin for get recent chats 
+      socket.emit('send-userIdIsLoggin', userIdIsLoggin)
     }catch (error) {
       console.log(error.message)
     }

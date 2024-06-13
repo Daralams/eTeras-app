@@ -1,15 +1,16 @@
 import axios from 'axios'
-import {jwtDecode} from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 import moment from 'moment'
 import React, {useEffect, useState} from 'react'
-import {useParams} from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import io from 'socket.io-client'
 import { LuSendHorizonal } from "react-icons/lu"
 import { IoClose } from "react-icons/io5"
 import { CiMenuKebab } from "react-icons/ci"
 import { MdEdit } from "react-icons/md"
 import { CiTrash } from "react-icons/ci"
 
-const Comments = () => {
+const Comments = ({ idPost }) => {
   const [isLogin, setIsLogin] = useState(false)
   const [token, setToken] = useState("")
   const [userId, setUserId] = useState("")
@@ -33,12 +34,20 @@ const Comments = () => {
   const [isEditReplyComment, setIsEditReplyComment] = useState(false)
   // show reply state
   const [displayBtnTarget, setDisplayBtnTarget] = useState(null)
-  const {slug} = useParams()
+  const { slug } = useParams()
   
   useEffect(() => {
+    console.log('id: ' + idPost)
     getComments()
-  }, [])
+    // broadcast msh comment msh blm bener
+    // socket.on('get-comments', (receiveComments) => {
+    //   setComments((prevMessages) => [...prevMessages, receiveComments])
+    //   console.log(receiveComments)
+    // }, [])
+    return () => socket.off('get-comments')
+  }, [idPost])
   
+  const socket = io('http://localhost:3000')
   const getComments = async() => {
     try {
       const getToken = await axios.get('http://localhost:3000/token')
@@ -47,13 +56,19 @@ const Comments = () => {
       const decoded = jwtDecode(getToken.data[1].RefreshToken)
       setUserId(decoded.userId)
       setUsernameIsLoggin(decoded.userName)
-      const response = await axios(`http://localhost:3000/posts/${slug}`, {
-        headers: { Authorization: `Bearer ${getToken.data[0].accessToken}`} 
-      })
       setToken(getToken.data.accessToken)
-      setComments(response.data[0].comments)
-      console.log(response.data)
-      setPostId(response.data[0].id)
+      // const response = await axios(`http://localhost:3000/posts/${slug}`, {
+      //   headers: { Authorization: `Bearer ${getToken.data[0].accessToken}`} 
+      // })
+      const response = await axios.get(`http://localhost:3000/posts/comments/${idPost}`)
+      console.log(response)
+      setComments(response.data.data)
+      const idPostForComment = response.data.data
+      idPostForComment.map(data => {
+        setPostId(data.postId)
+      })
+      // sementara panggil func dlu
+      getComments()
     }catch (error) {
       console.error(error.message)
     }
@@ -98,7 +113,8 @@ const Comments = () => {
           message
         })
         setMessage("")
-        getComments()
+        socket.emit('send-comment', sendComment)
+        // getComments()
       }else {
         // edit comment 
         const saveCommentEditted = await axios.patch(`http://localhost:3000/posts/comments/${commentId}`, {

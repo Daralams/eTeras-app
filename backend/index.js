@@ -22,7 +22,14 @@ import searchRoute from "./src/Routes/Search/SearchRoute.js"
 // chats 
 import ChatsRouter from "./src/Routes/Chats/ChatsRoute.js"
 
-// untuk keperluan chats realtime
+// likes 
+import { likeDislikePost } from './src/Controllers/Likes/LikesController.js'
+// comments realtime 
+import {
+  getCommentsById,
+  comments
+} from './src/Controllers/Comments/CommentsController.js'
+// chats realtime
 import { 
   showConversationsUserIsLoggin,
   showConversationContentById,
@@ -58,6 +65,29 @@ io.on('connection', (socket) => {
   console.log(status)
   console.log('User connected, id: ' + socket.id)
   
+  // comments realtime 
+  socket.on('send-comment', async(sendComment) => {
+    console.log(sendComment)
+    await comments({ body: sendComment }, {
+      status: (code) => ({ json: (response) => console.log(response) })
+    })
+    // msh terus mencoba derr 
+    const receiveComments = await getCommentsById(sendComment.postId)
+    console.log(receiveComments)
+    socket.broadcast.emit('get-comments', receiveComments)
+    // socket.broadcast.emit('get-comments', sendComment)
+  })
+  
+  // recent chats ~ send user id is login for get recent chats ~ blm bener ngaff (kerjain komen dlu)
+  socket.on('send-userIdIsLoggin', async(userIdIsLoggin) => {
+    console.log('User sedang login id: ' + userIdIsLoggin)
+    await showConversationsUserIsLoggin(userIdIsLoggin)
+    
+    // show recent chats by user id is login
+    socket.broadcast.emit('recent-chats', userIdIsLoggin)
+  })
+  
+  // chatting 
   socket.on('send-message', async (msg_data) => {
     console.log(msg_data)
     // Call the sendMessage function and pass the message data
