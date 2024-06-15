@@ -53,8 +53,8 @@ function Register() {
          onChange={(e) => setConfirmPw(e.target.value)}/>
          <button 
          type="submit"
-         className={`w-full mt-3 mb-2 px-4 py-2 ${(username && email && password && confirmPw).length < 1 ? 'bg-indigo-200' : 'bg-indigo-600'} text-white rounded-sm hover:bg-indigo-300`}
-         disabled={(username && email && password && confirmPw).length < 1}>Register</button>
+         className={`w-full mt-3 mb-2 px-4 py-2 ${(username && email && password && confirmPw).trim().length < 1 ? 'bg-indigo-200' : 'bg-indigo-600'} text-white rounded-sm hover:bg-indigo-300`}
+         disabled={(username && email && password && confirmPw).trim().length < 1}>Register</button>
          <p className="text-sm text-center text-slate-300">Already have an account? <Link to="/login" className="text-indigo-500">Login</Link></p>
        </form>
       </div>

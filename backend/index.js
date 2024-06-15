@@ -1,6 +1,7 @@
 import express from "express"
 import { createServer } from 'node:http'
 import cors from "cors"
+import FileUpload from 'express-fileupload'
 import dotenv from "dotenv"
 import { Server } from "socket.io"
 import cookieParser from "cookie-parser"
@@ -21,7 +22,7 @@ import likeDislikePostRouter from "./src/Routes/Likes/LikesRoute.js"
 import searchRoute from "./src/Routes/Search/SearchRoute.js"
 // chats 
 import ChatsRouter from "./src/Routes/Chats/ChatsRoute.js"
-
+import db from './src/Database/DbConnection.js'
 // likes 
 import { likeDislikePost } from './src/Controllers/Likes/LikesController.js'
 // comments realtime 
@@ -49,6 +50,8 @@ const io = new Server(server, {
 app.use(cookieParser())
 app.use(cors({credentials: true, origin: 'http://localhost:5173'}))
 app.use(express.json())
+app.use(FileUpload())
+app.use(express.static("public"))
 app.use(auth)
 app.use(user)
 app.use(PostRouter)

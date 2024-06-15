@@ -1,7 +1,9 @@
-import  React, {useState, useRef, useEffect} from 'react'
+import  React, { useState, useRef, useEffect } from 'react'
 import axios from "axios"
-import {jwtDecode} from 'jwt-decode'
-import {Link} from "react-router-dom"
+import { jwtDecode } from 'jwt-decode'
+import { Link } from "react-router-dom"
+// middleware 
+import { auth } from '../../middleware/auth.js'
 // components 
 import SecondNavbar from '../../components/SecondNavbar'
 import Footer from '../../components/Footer'
@@ -17,6 +19,8 @@ const CreatePost = () => {
   const [userId, setUserId] = useState("")
   const [title, setTitle] = useState("")
   const [slug, setSlug] = useState("")
+  const [imageName, setImageName] = useState("")
+  const [preview, setPreview] = useState("")
   const [content, setContent] = useState("")
   const [msg, setMsg] = useState("")
 
@@ -27,10 +31,8 @@ const CreatePost = () => {
   
   const getUser = async() => {
     try {
-      const refreshToken = await axios.get('http://localhost:3000/token')
-      const token = refreshToken.data[1].RefreshToken
-      const decoded = jwtDecode(token)
-      setUserId(decoded.userId)
+      const refreshToken = await auth()
+      setUserId(refreshToken.userId)
     }catch (error) {
       console.log(error)
     }
@@ -54,18 +56,26 @@ const CreatePost = () => {
     setSlug(slugger(e.target.value))
   }
   
+  const loadImage = (e) => {
+    const image = e.target.files[0]
+    setImageName(image) 
+    setPreview(URL.createObjectURL(image))
+  }
+  
   const createPost = async(e) => {
     e.preventDefault()
+    const formData = new FormData()
+    formData.append("categoryId", categoryId)
+    formData.append("userId", userId)
+    formData.append("title", title)
+    formData.append("slug", slug)
+    formData.append("imageName", imageName)
+    formData.append("content", content)
     try {
-      const request = await axios.post('http://localhost:3000/posts', 
-      {
-        categoryId,
-        userId,
-        title,
-        slug,
-        content
-      })
-      alert(request.data[0].msg)
+      const savepost = await axios.post('http://localhost:3000/posts', formData, { 
+        headers: { "Content-type": "multipart/form-data" } 
+      }) 
+      alert(savepost.data.msg)
     }catch (error) {
       if(error.response) {
         setMsg(error.response.data.msg)
@@ -88,6 +98,18 @@ const CreatePost = () => {
         <input type="hidden"
         value={slug}
         onChange={handleTitle}/>
+        <div className="my-2 p-2 border-[1px] rounded">
+          <input type="file" 
+          onChange={loadImage}/>
+          {preview ? (
+          <div className="mt-2 overflow-hidden">
+            <img 
+            src={preview} 
+            alt="preview img" 
+            className="rounded"/>
+          </div>
+          ) : ( "" )}
+        </div>
         <JoditEditor
         ref={editor}
         value={content}

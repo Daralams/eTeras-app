@@ -15,7 +15,7 @@ const Posts = () => {
   const [posts, setPosts] = useState([])
   const [userId, setUserId] = useState("")
   const [msg, setMsg] = useState("")
-  const [error, setError] = useState(null)
+  const [error, setError] = useState(false)
   const navigate = useNavigate()
   
   useEffect(() => {
@@ -31,14 +31,14 @@ const Posts = () => {
       const response = await axios.get("http://localhost:3000/posts"
       ,{ headers: { Authorization: `Bearer ${getToken.accessToken}`}
       })
-      setPosts(response.data[1].data)
-    }catch (error) {
-      if(error.response.status == 401 || 403) {
-        navigate('/login')
-      }else if(error.response.status == 404) {
-        setMsg(error.response.data.error)
-        setError(404)
+      if(response.data.status == 'failed') {
+        setMsg(response.data.msg)
+        setError(true)
+        return 
       }
+      setPosts(response.data.data)
+    }catch (error) {
+      console.log(error.message)
     }
   }
   
@@ -46,7 +46,7 @@ const Posts = () => {
     <>
     <Navbar/>
     <CardPosts userId={userId} posts={posts} socket={socket}/>
-    {error == 404 ? 
+    {error ? 
     <div className="flex justify-center items-center w-full h-screen text-3xl font-extrabold font-mono">{msg}!</div> : ""}
     <Footer/>
     </>

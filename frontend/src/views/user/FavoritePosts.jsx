@@ -1,8 +1,9 @@
 import axios from 'axios'
-import {jwtDecode} from 'jwt-decode'
 import moment from 'moment'
 import React, { useState, useEffect } from 'react'
-import {Link, useNavigate} from 'react-router-dom'
+import { Link, useNavigate} from 'react-router-dom'
+// middleware 
+import { auth } from '../../middleware/auth.js'
 import SecondNavbar from '../../components/SecondNavbar'
 // import CardPosts from '../../components/CardPosts'
 import { CiMenuKebab } from "react-icons/ci"
@@ -17,22 +18,18 @@ const FavoritePosts = () => {
   const navigate = useNavigate()
   
   useEffect(() => {
-    refreshToken()
+    getFavPosts()
   }, [userId])
   
-  const refreshToken = async() => {
+  const getFavPosts = async() => {
     try {
-      const getToken = await axios.get("http://localhost:3000/token")
-      const refresh_token = getToken.data[1].RefreshToken
-      const decodeToken = jwtDecode(refresh_token)
-      setUserId(decodeToken.userId)
-      setUsernameIsLoggin(decodeToken.userName)
-      setToken(getToken.data[0].accessToken)
+      const getToken = await auth()
+      setUserId(getToken.userId)
+      setUsernameIsLoggin(getToken.usernameIsLoggin)
       const favPostsResponse = await axios.get(`http://localhost:3000/profile/${userId}/fav-posts`)
       const favPostsData = favPostsResponse.data.data
       const postsData = favPostsData.map(value => value.post)
       setPosts(postsData)
-      console.log(postsData)
     }catch(error) {
       console.log(error)
       if(error.response.status == 401) {
@@ -46,7 +43,7 @@ const FavoritePosts = () => {
       userId,
       postId
     })
-    refreshToken()
+    getFavPosts()
   }
   
   return (
@@ -66,7 +63,12 @@ const FavoritePosts = () => {
      <>
      {posts.map(post => (
      <div className="p-1.5 flex items-center gap-2 border-[1px] mb-1 rounded-md" key={post.id}>
-        <div className="w-1/3 h-[80px] bg-slate-200 rounded-md"></div>
+        <div className="w-1/3 h-[80px] overflow-hidden">
+          <img 
+          src={post.imageUrl} 
+          alt={post.title}
+          className="rounded-md"/>
+        </div>
         <div className="w-4/5 p-2">
          <p className="text-[12px]">By <Link to={`/search/author/${post.user.id}/${post.user.username}`} className="text-indigo-500 font-mono">{post.user.username}</Link> in {post.category.name}</p>
          <Link to={`/posts/${post.slug}`} className="font-bold hover:text-indigo-500">{post.title}</Link>

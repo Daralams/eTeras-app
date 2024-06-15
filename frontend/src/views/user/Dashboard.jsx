@@ -1,6 +1,8 @@
 import axios from 'axios'
-import {jwtDecode} from 'jwt-decode'
-import React, {useState, useEffect} from 'react'
+import { jwtDecode } from 'jwt-decode'
+import React, { useState, useEffect } from 'react'
+// middleware 
+import { auth } from '../../middleware/auth.js'
 // components
 import SecondNavbar from '../../components/SecondNavbar'
 import Footer from '../../components/Footer'
@@ -39,6 +41,7 @@ const Dashboard = () => {
       setEmail(decode.userEmail)
       setJoinedDate(decode.registerAt)
       const userPost = await axios.get(`http://localhost:3000/author/${decode.userName}`)
+      console.log(userPost)
       setPosts(userPost.data[1].data[0].posts)
       setTotalPosts(userPost.data[1].data[0].posts.length)
     }catch(error) {
@@ -110,7 +113,12 @@ const Dashboard = () => {
       {posts.map(post => (
       <div className="w-[300px] p-3 white border-[1px] rounded hover:shadow-md" key={post.id}>
         <div className="flex">
-          <div className="w-1/3 h-auto bg-slate-100 rounded">
+          <div className="flex items-center overflow-hidden w-1/3 h-auto">
+            <img 
+            src={post.imageUrl}
+            alt={post.title}
+            className="rounded"
+            />
           </div>
           <div className="pl-3 pt-2 w-2/3 h-[100px]">
             <Link to={`/posts/${post.slug}`} className="mb-3 text-md font-bold">{post.title}</Link>

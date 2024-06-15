@@ -44,10 +44,10 @@ const Comments = ({ idPost }) => {
     //   setComments((prevMessages) => [...prevMessages, receiveComments])
     //   console.log(receiveComments)
     // }, [])
-    return () => socket.off('get-comments')
+    // return () => socket.off('get-comments')
   }, [idPost])
   
-  const socket = io('http://localhost:3000')
+  // const socket = io('http://localhost:3000')
   const getComments = async() => {
     try {
       const getToken = await axios.get('http://localhost:3000/token')
@@ -67,8 +67,6 @@ const Comments = ({ idPost }) => {
       idPostForComment.map(data => {
         setPostId(data.postId)
       })
-      // sementara panggil func dlu
-      getComments()
     }catch (error) {
       console.error(error.message)
     }

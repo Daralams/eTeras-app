@@ -21,6 +21,8 @@ const Posts = db.define('posts', {
     unique: true,
     allowNull: false
   },
+  imageName: DataTypes.TEXT,
+  imageUrl: DataTypes.TEXT,
   content: DataTypes.TEXT
 }, {
   freezeTableName: true
@@ -33,4 +35,3 @@ Category.hasMany(Posts)
 Posts.belongsTo(Category)
 
 export default Posts
-

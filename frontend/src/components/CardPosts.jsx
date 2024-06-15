@@ -86,7 +86,10 @@ const CardPosts = ({ userId, posts }) => {
        </div>
        
       <div className="overflow-hidden rounded">
-        <div className="h-[200px] w-full bg-slate-100 flex items-center justify-center">pic example</div>
+        <img 
+        src={post.imageUrl}
+        alt={post.title}
+        className="h-[200px] w-full bg-slate-100 flex items-center justify-center"/>
       </div>
        
       <div className="flex justify-between">

@@ -1,7 +1,6 @@
-import React, {useState, useRef, useEffect} from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
-import {jwtDecode} from 'jwt-decode'
-import {Link, useParams} from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 // components 
 import SecondNavbar from '../../components/SecondNavbar'
 import Footer from '../../components/Footer'
@@ -17,6 +16,9 @@ const UpdatePost = () => {
   const [userId, setUserId] = useState("")
   const [title, setTitle] = useState("")
   const [slug, setSlug] = useState("")
+  const [imageName, setImageName] = useState("")
+  const [oldImage, setOldImage] = useState("")
+  const [preview, setPreview] = useState("")
   const [content, setContent] = useState("")
   const [msg, setMsg] = useState("")
   const {id} = useParams()
@@ -38,10 +40,14 @@ const UpdatePost = () => {
   const getPostById = async () => {
     try {
       const response = await axios.get(`http://localhost:3000/post/${id}`)
+      console.log(response)
       setUserId(response.data[0].userId)
       setCategoryId(response.data[0].categoryId)
       setTitle(response.data[0].title)
       setSlug(response.data[0].slug)
+      setImageName(response.data[0].imageName)
+      console.log('img: ' + imageName)
+      setPreview(response.data[0].imageUrl)
       setContent(response.data[0].content)
     }catch(error) {
       console.error(error.message)
@@ -57,17 +63,26 @@ const UpdatePost = () => {
     console.log(value)
   }
   
+  const loadImage = (e) => {
+    const image = e.target.files[0]
+    setImageName(image)
+    setPreview(URL.createObjectURL(image))
+  }
+  
   const updatePost = async(e) => {
     e.preventDefault()
+    const formData = new FormData() 
+    formData.append('categoryId', categoryId)
+    formData.append('userId', userId)
+    formData.append('title', title)
+    formData.append('slug', slug)
+    formData.append('imageName', imageName)
+    formData.append('content', content)
     try {
-      const request = await axios.patch(`http://localhost:3000/posts/edit/${id}`, {
-        categoryId,
-        userId,
-        title,
-        slug,
-        content
+      const saveDataUpdated = await axios.patch(`http://localhost:3000/posts/edit/${id}`,formData , {
+        headers: { "Content-type": "multipart/form-data" }
       })
-      alert(request.data[0].msg)
+      alert(saveDataUpdated.data.msg)
     }catch(error) {
       if(error.response) {
         setMsg(error.response.data.msg)
@@ -90,6 +105,18 @@ const UpdatePost = () => {
         <input type="hidden" 
         value={slug}
         onChange={handleTitle}/>
+        <div className="my-2 p-2 border-[1px] rounded">
+          <input type="file" 
+          onChange={loadImage}/>
+          {preview ? (
+          <div className="mt-2 overflow-hidden">
+            <img 
+            src={preview} 
+            alt="preview img" 
+            className="rounded"/>
+          </div>
+          ) : ( "" )}
+        </div>
         <JoditEditor
         ref={editor}
         value={content}

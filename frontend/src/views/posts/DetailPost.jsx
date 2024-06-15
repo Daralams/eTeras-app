@@ -42,6 +42,7 @@ const DetailPost = () => {
     <div className="p-4" key={post.id}>
       <p className="text-sm">By- <Link to={`/author/${post.user.username}`} className="text-blue-300">{post.user.username} </Link> in {post.category.name}</p>
       <p className="mb-4 text-sm text-slate">Publish at - {moment(post.createdAt).format("MMMM dddd YYYY")}</p>
+      <img src={post.imageUrl} alt={post.title}/>
      <div dangerouslySetInnerHTML={{ __html: post.content}}/>
     </div>
     ))}

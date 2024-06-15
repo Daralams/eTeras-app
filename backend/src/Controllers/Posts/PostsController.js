@@ -1,4 +1,6 @@
-import {Sequelize, Op} from "sequelize"
+import { Sequelize, Op } from "sequelize"
+import fs from 'node:fs'
+import path from "path"
 import Posts from "../../Models/PostsModel.js"
 import Users from "../../Models/UsersModel.js"
 import Category from "../../Models/CategoryModel.js"
@@ -99,10 +101,15 @@ export const mostLikePosts = async (req, res) => {
 export const getPosts = async (req, res) => {
   try {
     const response = await Posts.findAll({
+      attributes: { exclude: ['content'] },
       include: [
-        {model: Users},
-        {model: Category},
-        {model: Likes, 
+        { model: Users ,
+          attributes: ['id', 'username']
+        },
+        { model: Category,
+          attributes: ['id', 'name', 'slug']
+        },
+        { model: Likes, 
           where: {
             status: 1
           },
@@ -116,13 +123,22 @@ export const getPosts = async (req, res) => {
       order: [['createdAt', 'DESC']]
     })
     if(response.length == 0) {
-      throw new Error("No Post available")
+      return res.status(200).json({
+        status: 'failed',
+        msg: 'no posts available!'
+      })
     }
-    res.status(200).json([
-      {msg: "All post"},
-      {data: response}])
+    res.status(200).json({ 
+      status: 'success',
+      msg: "All post:",
+      data: response 
+    })
   } catch (error) {
-    res.status(404).json({error: error.message})
+    console.log(error.message)
+    res.status(500).json({ 
+      status: 'failed', 
+      msg: error.message 
+    })
   }
 }
 
@@ -133,19 +149,23 @@ export const getPostBySlug = async (req, res) => {
         slug: req.params.slug
       },
       include: [
-        {model: Users}, 
-        {model:Category}, 
-        {model: Comments, 
+        { model: Users,
+          attributes: ['id', 'username', 'email']
+        }, 
+        { model:Category,
+          attributes: ['id', 'name', 'slug']
+        }, 
+        { model: Comments, 
         include: [
-        {model: Users},
-        {model: ReplyComment, 
-          include: {model: Users}}
+        { model: Users },
+        { model: ReplyComment, 
+          include: { model: Users } }
         ]}
-        ]
+      ]
     })
     
     if(!response) {
-      throw new Error(`Your request : ${req.params.slug}, Not found!`)
+      throw new Error(`your request : ${req.params.slug}, Not found!`)
     }
     res.status(200).json([response])
    } catch (error) {
@@ -155,23 +175,71 @@ export const getPostBySlug = async (req, res) => {
 
 export const createNewPost = async (req, res) => {
   try {
-    const postData = {
-      categoryId: req.body.categoryId,
-      userId: req.body.userId,
-      title: req.body.title,
-      slug: req.body.slug,
-      content: req.body.content
-    }
-    // post validation
-    if(postData.title.length <= 3 ) return res.status(500).json({msg: "Title must be more than 3 characters!"})
+    const { categoryId, userId, title, slug, content } = req.body
+    if(req.files === null) return res.status(400).json({ 
+      status: 'failed',
+      msg: 'no file uploaded!'
+    })
+    const imgFile = req.files.imageName
+    const imgFileSize = imgFile.size
+    const extension = path.extname(imgFile.name)
+    const fileName = imgFile.md5 + extension
+    const imgUrl = `${req.protocol}://${req.get('host')}/images/${fileName}`
+    const allowedType = ['.png', '.jpg', '.jpeg']
     
-    if(postData.categoryId.length < 1 ) return res.status(500).json({msg: "Please select category!"})
+     // post validation
+    if(!title || title.trim().length < 1 ) return res.status(400).json({
+      status: 'failed',
+      msg: "title cannot be empty!" })
     
-    const request = await Posts.create(req.body)
+    if(!categoryId || categoryId === null ) return res.status(400).json({ 
+      status: 'failed', 
+      msg: "please select category!" })
+      
+    if(!content || content.trim().length <= 10) return res.status(400).json({
+      status: 'failed',
+      msg: "content must be more than 10 characters!" })
     
-    res.status(201).json([
-      {msg: "New Post created successfully"},
-      {data: request}])
+    // images validation
+    if(!allowedType.includes(extension.toLowerCase())) return res.status(422).json({ 
+      status: 'failed',
+      msg: 'invalid image type, image must .png .jpg .jpg for the type!'
+    })
+    
+    if(imgFileSize > 5_000_000) return res.status(422).json({ 
+      status: 'failed',
+      msg: 'image size must be less than 5 MB!'
+    })
+    
+    imgFile.mv(`public/images/${fileName}`, async(error) => {
+      if(error) return res.status(500).json({
+        status: 'failed',
+        msg: error.message
+      })
+      try {
+        const request = await Posts.create({
+          categoryId,
+          userId,
+          title,
+          slug,
+          imageName: fileName,
+          imageUrl: imgUrl,
+          content
+        })
+        const postDataCreated = [request]
+        res.status(201).json({ 
+          status: 'success',
+          msg: 'new post created successfully',
+          data: postDataCreated.map(post => ({
+            id: post.id,
+            title: post.title,
+            date: post.createdAt
+          }))
+        })
+      }catch(error) {
+        console.log(error.message)
+      }
+    })
   } catch (error) {
     console.error(error.message)
   }
@@ -179,37 +247,93 @@ export const createNewPost = async (req, res) => {
 
 export const editPost = async (req, res) => {
   try {
-    const idParams = req.params.id
-    if(!idParams) return res.status(500).json({msg: "Id parameter missing!"})
-    const reqParams = await Posts.findOne({
-      where: {
-        id: idParams
-      }
+    const post_id = req.params.id
+    if(!post_id) return res.status(404).json({ 
+      status: 'failed',
+      msg: "id parameter missing!"
+    })
+    const post = await Posts.findOne({
+      where: { id: post_id }
     })
     
-    if(!reqParams) return res.status(404).json({msg: "Post not found!"})
+    if(!post) return res.status(404).json({
+      status: 'failed',
+      msg: "post not found!"
+    })
     
-    const postData = {
-      categoryId: req.body.categoryId,
-      userId: req.body.userId,
-      title: req.body.title,
-      slug: req.body.slug,
-      content: req.body.content
-    }
+    const { categoryId, userId, title, slug, content
+    } = req.body
+    
     // post validation
-    if(postData.title.length <= 3 ) return res.status(500).json({msg: "Title must be more than 3 characters!"})
-    if(postData.categoryId.length < 1 ) return res.status(500).json({msg: "Please select category!"})
-    
-    const request = await Posts.update(req.body, {
-      where: {
-        id: idParams
-      }
+    if(!title || title.trim().length < 1 ) return res.status(400).json({
+      status: 'failed',
+      msg: "title cannot be empty!" 
+    })
+    if(!categoryId || categoryId == null ) return res.status(400).json({
+      status: 'failed',
+      msg: "please select category!"
     })
     
-    res.status(200).json([
-      {msg: "Post updated successfully"},
-      {data: req.body}
-      ])
+    if(!content || content.trim().length <= 10) return res.status(400).json({
+      status: 'failed',
+      msg: "content must be more than 10 characters!" })
+    // cek user mengganti img atau tdk 
+    let fileName = ''
+    // jika user tdk ganti img
+    if(req.files === null) {
+      // isi nama file dengan file lama 
+      fileName = post.imageName
+    }else {
+      // jika user ganti img
+      const imgFile = req.files.imageName
+      const imgFileSize = imgFile.size
+      const extension = path.extname(imgFile.name)
+      fileName = imgFile.md5 + extension
+      const allowedType = ['.png', '.jpg', '.jpeg']
+      
+      // images validation
+      if(!allowedType.includes(extension.toLowerCase())) return res.status(422).json({ 
+        status: 'failed',
+        msg: 'invalid image type, image must .png .jpg .jpg for the type!'
+      })
+      
+      if(imgFileSize > 5_000_000) return res.status(422).json({ 
+        status: 'failed',
+        msg: 'image size must be less than 5 MB!'
+      })
+      // hapus img lama,
+      const filePath = `./public/images/${post.imageName}`
+      fs.unlinkSync(filePath) 
+      // ganti img baru
+      imgFile.mv(`public/images/${fileName}`, async(error) => {
+        if(error) return res.status(500).json({
+          status: 'failed',
+          msg: error.message
+        })
+      })
+    }
+    const imgUrl = `${req.protocol}://${req.get('host')}/images/${fileName}`
+    
+    // update post 
+    const updatePost = await Posts.update({ 
+      categoryId,
+      userId,
+      title,
+      slug,
+      imageName: fileName,
+      imageUrl: imgUrl,
+      content
+    }, { where: { id: post_id } })
+    
+    res.status(200).json({
+      status: 'success',
+      msg: "post updated successfully",
+      data: 
+        {
+          id: post_id,
+          title: req.body.title
+        }
+    })
   } catch(error) {
     console.error(error.message)
   }
@@ -217,17 +341,27 @@ export const editPost = async (req, res) => {
 
 export const deletePost = async (req, res) => {
   try {
-    const response = await Posts.destroy({
+    const post = await Posts.findOne({ where: { id: req.params.id } })
+    
+    if(!post) return res.status(404).json({ 
+      status: 'failed',
+      msg: `Your request ${req.params.id} Not Found`
+    })
+    
+    const filePath = `./public/images/${post.imageName}`
+    fs.unlinkSync(filePath) // delete file from public folder
+    
+    const deletePost = await Posts.destroy({
       where: {
         id: req.params.id
       }
     })
-    if(!response) {
-      throw new Error(`Your request ${req.params.id} Not Found`)
-    }
-    res.status(200).json(
-      {msg: 'Your post has been deleted'})
+    
+    res.status(200).json({ 
+      status: 'success',
+      msg: 'Your post has been deleted' 
+    })
   } catch (error) {
-    res.status(404).json({error: error.message})
+    console.log(error.message)
   }
 }
