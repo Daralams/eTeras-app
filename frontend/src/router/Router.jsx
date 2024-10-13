@@ -10,6 +10,7 @@ import LandingPage from '../views/landing-page/LandingPage'
 import LandingUserSearchResult from '../views/page-other-user/LandingUserSearchResult'
 // user
 import Dashboard from '../views/user/Dashboard'
+import AccountSettings from '../views/user/AccountSettings'
 import FavoritePosts from '../views/user/FavoritePosts'
 import CommentsHistory from '../views/user/CommentsHistory'
 import CreatePost from '../views/user/CreatePost'
@@ -31,6 +32,7 @@ const Router = () => {
       <Route path="/login" element={<Login/>}/>
       <Route path="/register" element={<Register/>}/>
       <Route path="/dashboard" element={<Dashboard/>}/>
+      <Route path="edit-profile" element={<AccountSettings/>}/>
       <Route path="/dashboard/favorite-posts" element={<FavoritePosts/>}/>
       <Route path="/dashboard/comments-history" element={<CommentsHistory/>}/>
       <Route path="/create-post" element={<CreatePost/>}/>
@@ -43,7 +45,7 @@ const Router = () => {
       {/* result search user */}
       <Route path={`/search/author/:id/:username`} element={<LandingUserSearchResult/>}/>
       <Route path="/chats" element={<MyChats/>}/>
-      <Route path="/chats/content/:userId/:conversation_id" element={<ChatWindow/>}/>
+      <Route path="/chats/content/:juserId/:conversation_id" element={<ChatWindow/>}/>
     </Routes>
     </BrowserRouter>
     </>
