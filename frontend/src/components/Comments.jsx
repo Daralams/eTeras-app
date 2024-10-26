@@ -1,5 +1,4 @@
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -9,7 +8,6 @@ import { IoClose } from "react-icons/io5";
 import { CiMenuKebab } from "react-icons/ci";
 import { MdEdit } from "react-icons/md";
 import { CiTrash } from "react-icons/ci";
-import { auth } from "../middleware/auth";
 
 const Comments = ({ post, userId, userNameIsLoggin, token }) => {
   const [isLoading, setIsLoading] = useState(true);
