@@ -3,15 +3,13 @@ import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// middleware
-import { auth } from "../../middleware/auth.js";
 
 const socket = io("http://localhost:3000");
 const ChatItem = ({ userIdIsLoggin }) => {
   const [chatItems, setChatItems] = useState([]);
 
   useEffect(() => {
-    getChatsUserIsLoggin();
+    getRecentChatsUserIsLoggin();
     // show recent chats ~ blm bener!
     socket.on("recent-chats", (userIdIsLoggin) => {
       setChatItems((prevChats) => [...prevChats, userIdIsLoggin]);
@@ -20,12 +18,13 @@ const ChatItem = ({ userIdIsLoggin }) => {
     return () => socket.off("recent-chats");
   }, [userIdIsLoggin]);
 
-  const getChatsUserIsLoggin = async () => {
+  const getRecentChatsUserIsLoggin = async () => {
     try {
-      const getRecentChats = await axios.get(
+      const recentChat = await axios.get(
         `http://localhost:3000/chats/${userIdIsLoggin}`
       );
-      setChatItems(getRecentChats.data.data);
+      setChatItems(recentChat.data.data);
+      console.log("Recent chat: ", recentChat.data.data);
 
       // send userIdIsLoggin for get recent chats
       socket.emit("send-userIdIsLoggin", userIdIsLoggin);
@@ -41,9 +40,16 @@ const ChatItem = ({ userIdIsLoggin }) => {
             to={`/chats/content/${item.interlocutor.id}/${item.id}`}
             className="flex items-center w-full p-2 gap-4 hover:bg-slate-100"
           >
-            <div className="w-[50px] h-[50px] flex justify-center items-center p-2 bg-slate-200 rounded-full">
-              {item.interlocutor.name[0]}
-            </div>
+            {item.interlocutor.profile_photo ? (
+              <img
+                src={item.interlocutor.profile_photo}
+                className="w-[50px] h-[50px] flex justify-center items-center rounded-full overflow-hidden object-cover"
+              />
+            ) : (
+              <div className="w-[50px] h-[50px] flex justify-center items-center p-2 bg-slate-200 rounded-full">
+                {item.interlocutor.name[0]}
+              </div>
+            )}
             <div className="w-full flex justify-between py-3">
               <div>
                 <p className="font-bold font-mono">{item.interlocutor.name}</p>

@@ -22,8 +22,6 @@ const ChatInput = ({ socket, conversationId, sender_id, receiver_id }) => {
       receiver_id: userIdReceiver,
       message,
     };
-    console.log({ msg_data });
-
     socket.emit("send-message", msg_data);
   };
 

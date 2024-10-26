@@ -48,7 +48,6 @@ const ChatBubbles = ({ sender_id, date }) => {
     const response = await axios.get(
       `http://localhost:3000/chats/content/${conversation_id}`
     );
-    console.log("Chat with id : ", conversation_id, ": ", response);
     setChatMessages(response.data.data.chats);
   };
 

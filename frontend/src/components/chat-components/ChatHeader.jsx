@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoArrowBack } from "react-icons/io5";
 
 const ChatHeader = ({ idInterlocutor, alternativeIdInterlocutor }) => {
   const [usernameInterlocutor, setUsernameInterlocutor] = useState("");
+  const [profilePhotoInterlocutor, setProfilePhotoInterlocutor] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,8 +19,7 @@ const ChatHeader = ({ idInterlocutor, alternativeIdInterlocutor }) => {
       }`
     );
     setUsernameInterlocutor(response.data.data[0].username);
-    console.log("username interlocutor: ", usernameInterlocutor[0]);
-    console.log("Get username: ", response.data.data[0].username);
+    setProfilePhotoInterlocutor(response.data.data[0].profile_photo_url);
   };
 
   return (
@@ -32,9 +32,17 @@ const ChatHeader = ({ idInterlocutor, alternativeIdInterlocutor }) => {
           >
             <IoArrowBack />
           </button>
-          <div className="p-2 flex justify-center items-center w-[40px] h-[40px] rounded-full bg-slate-100 font-bold">
-            {usernameInterlocutor[0]}
-          </div>
+          {profilePhotoInterlocutor ? (
+            <img
+              src={profilePhotoInterlocutor}
+              className="flex justify-center items-center w-[40px] h-[40px] rounded-full border-[1px] border-white overflow-hidden object-cover"
+            />
+          ) : (
+            <div className="p-2 flex justify-center items-center w-[40px] h-[40px] rounded-full bg-slate-100 font-bold">
+              {usernameInterlocutor[0]}
+            </div>
+          )}
+
           <div className="flex flex-col">
             <p className="font-bold text-white">{usernameInterlocutor}</p>
             <p className="text-white text-sm">online</p>
