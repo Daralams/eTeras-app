@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 import { createServer } from "node:http";
 import cors from "cors";
 import FileUpload from "express-fileupload";
@@ -36,6 +36,9 @@ import {
   showConversationContentById,
   sendMessage,
 } from "./src/Controllers/Chats/ChatsController.js";
+// get user by id
+import { getUserById } from "./src/Controllers/User/UsersController.js";
+import { getPostBySlug } from "./src/Controllers/Posts/PostsController.js";
 
 dotenv.config();
 const port = 3000;
@@ -62,53 +65,79 @@ app.use(likeDislikePostRouter);
 app.use(searchRoute);
 app.use(ChatsRouter);
 
-let status = "";
 io.on("connection", (socket) => {
-  status = "Online";
-  console.log(status);
-  console.log("User connected, id: " + socket.id);
+  console.log(`> client connected, socket id: ${socket.id}`);
 
   // comments realtime
-  socket.on("send-comment", async (sendComment) => {
-    console.log(sendComment);
+  socket.on("comment-proccess", async (recentComments) => {
     await comments(
-      { body: sendComment },
+      { body: recentComments },
       {
-        status: (code) => ({ json: (response) => console.log(response) }),
+        status: (code) => ({
+          json: (response) => {
+            console.log(response);
+          },
+        }),
       }
     );
-    // msh terus mencoba derr
-    const receiveComments = await getCommentsById(sendComment.postId);
-    console.log(receiveComments);
-    socket.broadcast.emit("get-comments", receiveComments);
-    // socket.broadcast.emit('get-comments', sendComment)
+    socket.broadcast.emit("recent-comments", recentComments);
   });
 
   // recent chats ~ send user id is login for get recent chats ~ blm bener ngaff (kerjain komen dlu)
-  socket.on("send-userIdIsLoggin", async (userIdIsLoggin) => {
-    console.log("User sedang login id: " + userIdIsLoggin);
-    await showConversationsUserIsLoggin(userIdIsLoggin);
+  // socket.on("send-userIdIsLoggin", async (userIdIsLoggin) => {
+  //   console.log("User sedang login id: " + userIdIsLoggin);
+  //   await showConversationsUserIsLoggin(userIdIsLoggin);
 
-    // show recent chats by user id is login
-    socket.broadcast.emit("recent-chats", userIdIsLoggin);
-  });
+  //   // show recent chats by user id is login
+  //   socket.broadcast.emit("recent-chats", userIdIsLoggin);
+  // });
 
   // chatting
   socket.on("send-message", async (msg_data) => {
-    console.log(msg_data);
+    console.log({ msg_data });
+    const id_user = msg_data.receiver_id;
     // Call the sendMessage function and pass the message data
     await sendMessage(
       { body: msg_data },
       {
-        status: (code) => ({ json: (response) => console.log(response) }),
+        status: (code) => ({
+          json: (response) => {
+            console.log(response);
+          },
+        }),
       }
     );
     socket.broadcast.emit("receive-message", msg_data);
+
+    // RECENT CHAT MASIH BELUM BENAR, ADA BUG DI PENGEMALIAN RESPONSE YANG TIDAK SESUAI DENGAN API CONVERSATION!
+    // const getDataReceiver = await getUserById({ params: { userId: id_user } });
+    // console.log("Data receiver: ", getDataReceiver);
+    socket.broadcast.emit("get-recent-chats", {
+      id: msg_data.receiver_id,
+    });
+
+    // // Panggil fungsi untuk mendapatkan recent chats
+    // const recentChats = await showConversationsUserIsLoggin(
+    //   id_user,
+    //   // { params: id_user },
+    //   {
+    //     status: (code) => ({
+    //       json: (data) => data,
+    //     }),
+    //   }
+    // );
+    // console.log(
+    //   "Recent chats terbaru: ",
+    //   recentChats,
+    //   "Penerima recent chats: ",
+    //   id_user
+    // );
+    // // Kirim recent chats secara realtime ke user terkait
+    // socket.broadcast.emit("update-recent-chats", recentChats);
   });
 
   socket.on("disconnect", () => {
-    status = "Offline";
-    console.log(status);
+    console.log(`> client disconnected, socket id: ${socket.id}`);
   });
 });
 

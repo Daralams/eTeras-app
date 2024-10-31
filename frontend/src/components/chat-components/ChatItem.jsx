@@ -10,12 +10,14 @@ const ChatItem = ({ userIdIsLoggin }) => {
 
   useEffect(() => {
     getRecentChatsUserIsLoggin();
-    // show recent chats ~ blm bener!
-    socket.on("recent-chats", (userIdIsLoggin) => {
-      setChatItems((prevChats) => [...prevChats, userIdIsLoggin]);
+    // socket.on("update-recent-chats", (recentChats) => {
+    //   setChatItems(recentChats); // Misal, menggunakan state management
+    //   console.log("Recent chat dari socket io: ", recentChats);
+    // });
+    socket.on("get-recent-chats", (recentChats) => {
+      console.log("Recent chat dari socket io: ", recentChats);
+      // setChatItems(recentChats); // Misal, menggunakan state management
     });
-    console.log(chatItems);
-    return () => socket.off("recent-chats");
   }, [userIdIsLoggin]);
 
   const getRecentChatsUserIsLoggin = async () => {
@@ -25,9 +27,6 @@ const ChatItem = ({ userIdIsLoggin }) => {
       );
       setChatItems(recentChat.data.data);
       console.log("Recent chat: ", recentChat.data.data);
-
-      // send userIdIsLoggin for get recent chats
-      socket.emit("send-userIdIsLoggin", userIdIsLoggin);
     } catch (error) {
       console.log(error.message);
     }

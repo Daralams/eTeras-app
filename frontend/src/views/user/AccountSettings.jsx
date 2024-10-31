@@ -44,7 +44,7 @@ const AccountSettings = () => {
         moment(userAuthorized.data.data[0].createdAt).format("YYYY-MM-DD")
       );
     } catch (error) {
-      console.error(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +54,6 @@ const AccountSettings = () => {
     const userProfilePhoto = e.target.files[0];
     setUserProfilePhotoName(userProfilePhoto);
     setPreviewImgProfile(URL.createObjectURL(userProfilePhoto));
-    console.log("Image url: ", previewImgProfile);
   };
 
   const deleteProfilePhoto = async () => {
@@ -73,17 +72,16 @@ const AccountSettings = () => {
           }, 2000);
         }
       } catch (error) {
-        alert(error.response.data.msg);
-        console.error(error.message);
+        console.error(`[client error] an error occurred: ${error}`);
       }
     }
   };
 
   const discardChanges = () => {
-    const leave = confirm(
+    const cancelChanges = confirm(
       "Are you sure you want to leave? Your changes will not be saved"
     );
-    if (leave) {
+    if (cancelChanges) {
       navigate("/dashboard");
     }
   };
@@ -94,7 +92,7 @@ const AccountSettings = () => {
     formdata.append("username", userName);
     formdata.append("email", userEmail);
     formdata.append("profile_photo_name", userProfilePhotoName);
-    formdata.append("about", userAbout);
+    formdata.append("about", userAbout.value == null ? "" : userAbout);
     formdata.append("date_of_birth", userDateBirth);
     try {
       const requestChange = await axios.patch(
@@ -108,8 +106,7 @@ const AccountSettings = () => {
       alert(requestChange.data.msg);
       navigate("/dashboard");
     } catch (error) {
-      alert(error.response.data.msg);
-      console.error(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
   return (

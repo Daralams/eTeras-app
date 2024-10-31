@@ -63,7 +63,7 @@ const Dashboard = () => {
     } catch (error) {
       if (error.response) {
         navigate("/login");
-        console.log(error.response);
+        console.log("Response error: ", error.response);
       }
     } finally {
       setIsLoading(false);

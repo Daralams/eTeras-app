@@ -36,15 +36,19 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
 
   useEffect(() => {
     getComments();
-    // broadcast msh comment msh blm bener
-    // socket.on('get-comments', (receiveComments) => {
-    //   setComments((prevMessages) => [...prevMessages, receiveComments])
-    //   console.log(receiveComments)
-    // }, [])
-    // return () => socket.off('get-comments')
+    socket.on("recent-comments", async (recentComments) => {
+      if (post.id === recentComments.postId) {
+        const getRecentCommentsByPostId = await axios.get(
+          `http://localhost:3000/posts/comments/${recentComments.postId}`
+        );
+        const recentCommentSaved = getRecentCommentsByPostId.data.data;
+        setComments(recentCommentSaved);
+      }
+    });
+    return () => socket.off("recent-comments");
   }, []);
 
-  // const socket = io('http://localhost:3000')
+  const socket = io("http://localhost:3000");
   const getComments = async () => {
     try {
       if (userId) {
@@ -60,7 +64,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
         getFullDataUserIsLoggin.data.data[0].profile_photo_url
       );
     } catch (error) {
-      console.error(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -87,12 +91,15 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
   };
 
   const handleEditBtn = (e) => {
-    const [id, message] = JSON.parse(e.target.value);
-    console.log(id);
-    setCommentId(id);
-    setMessage(message);
-    setIsEditComment(true);
-    setIsEditReplyComment(true);
+    try {
+      const [id, message] = JSON.parse(e.target.value);
+      setCommentId(id);
+      setMessage(message);
+      setIsEditComment(true);
+      setIsEditReplyComment(true);
+    } catch (error) {
+      console.error(`[client error] an error occurred: ${error}`);
+    }
   };
 
   const postComment = async (e) => {
@@ -107,9 +114,9 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
             message,
           }
         );
+        const commentMsg = { postId, userId, message };
         setMessage("");
-        socket.emit("send-comment", sendComment);
-        getComments();
+        socket.emit("comment-proccess", commentMsg);
       } else {
         // edit comment
         const saveCommentEditted = await axios.patch(
@@ -121,26 +128,30 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
         );
         if (saveCommentEditted.status == 200) {
           alert("Comment editted successfully!");
-          getComments();
           setMessage("");
           setIsEditComment(false);
+          socket.emit("comment-proccess", { postId: post.id });
         }
       }
     } catch (error) {
-      if (error.response) console.error(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
 
   const deleteComment = async (id) => {
-    const deleteConfirm = confirm("You want delete this post?");
-    if (deleteConfirm == true) {
-      const deleted = await axios.delete(
-        `http://localhost:3000/posts/comments/${id}`
-      );
-      if (deleted.status == 200) {
-        alert("Comment deleted successfuly");
-        getComments();
+    try {
+      const deleteConfirm = confirm("You want delete this post?");
+      if (deleteConfirm == true) {
+        const deleted = await axios.delete(
+          `http://localhost:3000/posts/comments/${id}`
+        );
+        if (deleted.status == 200) {
+          alert("Comment deleted successfuly");
+          socket.emit("comment-proccess", { postId: post.id });
+        }
       }
+    } catch (error) {
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
 
@@ -201,7 +212,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
         setMessage("");
       }
     } catch (error) {
-      if (error.response) console.error(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
 

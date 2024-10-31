@@ -16,7 +16,9 @@ export const dashboard = async (req, res) => {
     // ini digunakan utk menampilkan semua post berdasarkan user yg login
     res.status(200).json({ msg: "Your dashboard" });
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -29,17 +31,21 @@ export const accountSettings = async (req, res) => {
     });
 
     if (usersIsLogin) {
-      res.status(200).json([{ status: "success" }, { data: usersIsLogin }]);
+      res.status(200).json({
+        status: "success",
+        msg: `user with email: ${req.params.email} authorized`,
+        data: usersIsLogin,
+      });
     } else {
-      res
-        .status(401)
-        .json([
-          { status: "failed" },
-          { message: `email : ${req.params.email} Unauthorized!` },
-        ]);
+      res.status(401).json({
+        status: "failed",
+        msg: `email : ${req.params.email} Unauthorized!`,
+      });
     }
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -151,10 +157,14 @@ export const updateUserProfile = async (req, res) => {
         msg: `profile ${user.username} updated successfully`,
       });
     } catch (error) {
-      console.error(error.message);
+      console.error(
+        `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+      );
     }
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -183,7 +193,9 @@ export const deleteUserProfilePhoto = async (req, res) => {
         .json({ status: "success", msg: "profile photo deleted sucessfully!" });
     }
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -216,13 +228,15 @@ export const getUser = async (req, res) => {
       order: [["createdAt", "DESC"]],
     });
     if (response.length === 0) {
-      throw new Error(`No post by : ${req.params.username}`);
+      res.status(404).json({ error: `No post by : ${req.params.username}` });
     }
     res
       .status(200)
       .json([{ msg: `Author : ${req.params.username}` }, { data: response }]);
   } catch (error) {
-    res.status(404).json({ error: error.message });
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -246,7 +260,9 @@ export const favoritedPosts = async (req, res) => {
     });
     res.status(200).json({ data: getLikesData });
   } catch (error) {
-    console.log(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -305,23 +321,36 @@ export const commentsHistory = async (req, res) => {
 
     res.status(200).json({ posts: getCommentsHistory });
   } catch (error) {
-    console.log(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
 // get profile other user to see profile other user account
 export const getProfileOtherUser = async (req, res) => {
-  const request = await Users.findOne({
-    attributes: {
-      exclude: ["password", "confirmPw", "refresh_token", "updatedAt"],
-    },
-    where: {
-      id: req.params.id,
-    },
-    include: {
-      model: Posts,
-      attributes: ["id"],
-    },
-  });
-  res.status(200).json({ userProfile: request });
+  try {
+    const request = await Users.findOne({
+      attributes: {
+        exclude: ["password", "confirmPw", "refresh_token", "updatedAt"],
+      },
+      where: {
+        id: req.params.id,
+      },
+      include: {
+        model: Posts,
+        attributes: ["id"],
+      },
+    });
+    if (!request)
+      return res.status(404).json({
+        status: "failed",
+        msg: `other user with id: ${req.params.id} not found!`,
+      });
+    res.status(200).json({ userProfile: request });
+  } catch (error) {
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
+  }
 };

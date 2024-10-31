@@ -63,6 +63,7 @@ export const showConversationsUserIsLoggin = async (req, res) => {
         };
       })
       .filter((conversation) => conversation.interlocutor !== null); // ini juga opsional
+    console.log("Recent chats dari controller: ", result);
     res.status(200).json({ data: result });
   } catch (error) {
     console.log(error.message);
@@ -91,38 +92,32 @@ export const sendMessage = async (req, res) => {
 
     // validation sender_id or receiver_id if undefined
     if (!sender_id || !receiver_id) {
-      return res
-        .status(400)
-        .json([
-          { status: "Failed" },
-          {
-            msg: "Failed save message, sender id or receiver id is not defined!",
-          },
-        ]);
+      return res.status(400).json([
+        { status: "Failed" },
+        {
+          msg: "Failed save message, sender id or receiver id is not defined!",
+        },
+      ]);
     }
 
     // validation if sender_id == receiver_id
     if (sender_id === receiver_id) {
-      return res
-        .status(400)
-        .json([
-          { status: "Failed" },
-          {
-            msg: "Failed save message, sender id can't same with receiver id!",
-          },
-        ]);
+      return res.status(400).json([
+        { status: "Failed" },
+        {
+          msg: "Failed save message, sender id can't same with receiver id!",
+        },
+      ]);
     }
 
     // validation message if undefined or empty string
     if (!message || message.trim().length < 1) {
-      return res
-        .status(400)
-        .json([
-          { status: "Failed" },
-          {
-            msg: "Failed to save message, message must be longer than 1 character",
-          },
-        ]);
+      return res.status(400).json([
+        { status: "Failed" },
+        {
+          msg: "Failed to save message, message must be longer than 1 character",
+        },
+      ]);
     }
 
     // cek keberadaan userId_1 dan userId_2 pada db Conversation
@@ -165,6 +160,8 @@ export const sendMessage = async (req, res) => {
         data: saveMessageSuccess.map((chatData) => ({
           id: chatData.id,
           conversation_id: chatData.conversationId,
+          userId_1: sender_id,
+          userId_2: receiver_id,
         })),
       },
     ]);

@@ -25,7 +25,9 @@ export const getCommentsById = async (req, res) => {
       data: response,
     });
   } catch (error) {
-    console.log(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -52,9 +54,17 @@ export const comments = async (req, res) => {
       return res.status(500).json({ msg: "please type a comment!" });
 
     const insertComment = await Comments.create(req.body);
-    res.sendStatus(200);
+    console.log({ insertComment });
+    res.status(201).json({
+      status: "success",
+      msg: "saved new comments successfully",
+      data: insertComment,
+    });
+    return insertComment;
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -77,16 +87,24 @@ export const editComment = async (req, res) => {
     });
     res.sendStatus(200);
   } catch (error) {
-    console.log(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
 export const deleteComment = async (req, res) => {
-  const response = await Comments.destroy({
-    where: {
-      id: req.params.id,
-    },
-  });
-  if (!response) return res.sendStatus(404);
-  res.sendStatus(200);
+  try {
+    const response = await Comments.destroy({
+      where: {
+        id: req.params.id,
+      },
+    });
+    if (!response) return res.sendStatus(404);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
+  }
 };
