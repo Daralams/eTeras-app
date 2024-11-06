@@ -10,7 +10,6 @@ import io from "socket.io-client";
 import CardPosts from "../../components/CardPosts";
 import Footer from "../../components/Footer";
 
-const socket = io("http://localhost:3000");
 const Posts = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -21,8 +20,26 @@ const Posts = () => {
 
   useEffect(() => {
     getPostsData();
+    // ini bisa sebenernya, tapi akan berat karna setiap kali like / dislike request posts ulang
+    socket.on("show-recent-like-total", async (posts) => {
+      // setPosts(posts);
+      getPostsData();
+    });
+    // dev ~ untuk memperbaiki cara diatas ( belum berhasil )
+    // socket.on("show-recent-like-total", (updatedPost) => {
+    //   setPosts((prevPosts) =>
+    //     prevPosts.map((post) =>
+    //       post.id === updatedPost.id
+    //         ? { ...post, likes: updatedPost.likes }
+    //         : post
+    //     )
+    //   );
+    //   console.log("Updated posts: ", updatedPost);
+    // });
+    return () => socket.off("show-recent-like-total");
   }, []);
 
+  const socket = io("http://localhost:3000");
   const getPostsData = async () => {
     try {
       // request new accesstoken
@@ -38,6 +55,7 @@ const Posts = () => {
         return;
       }
       setPosts(response.data.data);
+      console.log(response.data.data);
     } catch (error) {
       console.log(error.message);
     } finally {

@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, Op } from "sequelize";
 import path from "path";
 import fs from "node:fs";
 // import bcrypt from 'bcryptjs'
@@ -285,6 +285,7 @@ export const commentsHistory = async (req, res) => {
     // percobaan
     // problem query ini:
     // 1. Gabisa nampilin comment yg ga memiliki ReplyComment
+    // NOTE: HARUS DI FIX LG QUERY NYA!
     const getCommentsHistory = await Posts.findAll({
       attributes: ["id", "title", "slug", "createdAt"],
       include: [
@@ -292,13 +293,18 @@ export const commentsHistory = async (req, res) => {
         {
           model: Comments,
           required: true,
-          // where: { userId: req.params.userId },
+          where: {
+            [Op.or]: [{ userId: req.params.userId }],
+          },
           include: [
             {
               model: ReplyComment,
-              where: { userId: req.params.userId },
+              // where: { userId: req.params.userId },
+              where: {
+                [Op.or]: [{ userId: req.params.userId }],
+              },
               include: { model: Users, attributes: ["id", "username"] },
-              // required: false
+              required: false,
             },
             { model: Users, attributes: ["id", "username"] },
           ],

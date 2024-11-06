@@ -7,8 +7,10 @@ import moment from "moment";
 import { SlHeart } from "react-icons/sl";
 // import LikesBtn from '../../components/LikesBtn'
 import { GoComment } from "react-icons/go";
+import { auth } from "../middleware/auth";
 
-const CardPosts = ({ userId, posts }) => {
+const CardPosts = ({ userId, posts, socket }) => {
+  // const [posts, setPosts] = useState([]);
   const [likesLength, setLikesLength] = useState(null);
   const { slug } = useParams();
   // status liked
@@ -16,6 +18,18 @@ const CardPosts = ({ userId, posts }) => {
 
   useEffect(() => {
     userLiked();
+    // socket.on("show-recent-like-total", async (posts) => {
+    //   const authorization = await auth();
+    //   const token = authorization.accessToken;
+    //   const response = await axios.get("http://localhost:3000/posts", {
+    //     headers: { Authorization: `Bearer ${token}` },
+    //   });
+    //   console.log("Response cuy: ", response);
+    //   console.log({ token });
+    //   setPosts(posts);
+    //   console.log(posts);
+    // });
+    // return () => socket.off("show-recent-like-total");
   }, []);
 
   const likeDislike = async (id) => {
@@ -24,6 +38,7 @@ const CardPosts = ({ userId, posts }) => {
       postId,
       userId,
     });
+    socket.emit("like-dislike-process", { postId, userId });
   };
   // msh prosses debugging
   const userLiked = async () => {
@@ -121,7 +136,9 @@ const CardPosts = ({ userId, posts }) => {
                       to={`/posts/${post.slug}`}
                       className="fs-4 font-bold mb-2 hover:text-indigo-400"
                     >
-                      {post.title}{" "}
+                      {post.title.length < 35
+                        ? post.title
+                        : post.title.substr(0, 35).concat("...")}{" "}
                       <Link
                         to={`/category/${post.category.slug}`}
                         className="ml-3 text-[8px] mb-6 bg-indigo-300 py-0.5 px-1.5 text-white rounded border-[1px] border-indigo-500"

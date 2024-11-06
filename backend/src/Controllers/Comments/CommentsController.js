@@ -3,6 +3,7 @@ import Posts from "../../Models/PostsModel.js";
 import Users from "../../Models/UsersModel.js";
 import Comments from "../../Models/CommentsModel.js";
 import ReplyComment from "../../Models/ReplyCommentModel.js";
+import { io } from "../../../index.js";
 
 export const getCommentsById = async (req, res) => {
   try {
@@ -54,19 +55,83 @@ export const comments = async (req, res) => {
       return res.status(500).json({ msg: "please type a comment!" });
 
     const insertComment = await Comments.create(req.body);
-    console.log({ insertComment });
+    const newCommentSaved = [
+      {
+        ...insertComment.toJSON(),
+        user: checkUser.toJSON(),
+        reply_comments: [],
+      },
+    ];
+    // socket.on("comment-proccess", async (recentComments) => {
+    //   socket.broadcast.emit("recent-comments", recentComments);
+    // });
     res.status(201).json({
       status: "success",
       msg: "saved new comments successfully",
-      data: insertComment,
+      data: newCommentSaved,
     });
-    return insertComment;
   } catch (error) {
     console.error(
       `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
     );
   }
 };
+
+// development: rombak realtime comment
+// export const comments = async (req, res) => {
+//   try {
+//     const postId = await Posts.findOne({
+//       where: {
+//         id: req.params.id,
+//       },
+//     });
+
+//     if (!postId) return res.status(404).json({ msg: "Post id is invalid!" });
+
+//     const checkUser = await Users.findOne({
+//       where: {
+//         id: req.body.userId,
+//       },
+//     });
+//     if (!checkUser)
+//       return res.status(401).json({ msg: "User not registered!" });
+
+//     const messageValue = req.body.message;
+//     if (messageValue.length < 1)
+//       return res.status(500).json({ msg: "please type a comment!" });
+
+//     const insertComment = await Comments.create(req.body);
+//     const newCommentSaved = [
+//       {
+//         ...insertComment.toJSON(),
+//         user: checkUser.toJSON(),
+//         reply_comments: [],
+//       },
+//     ];
+//     io.on("connection", (socket) => {
+//       socket.on("comment-proccess", async (recentComments) => {
+//         console.log({ recentComments });
+//         // if (
+//         //   recentComments.postId === newCommentSaved.postId &&
+//         //   recentComments.userId ===
+//         //     newCommentSaved.map((comment) => comment.user.id)
+//         // ) {
+//         //   socket.broadcast.emit("recent-comments", newCommentSaved);
+//         // }
+//         socket.broadcast.emit("recent-comments", newCommentSaved);
+//       });
+//     });
+//     res.status(201).json({
+//       status: "success",
+//       msg: "saved new comments successfully",
+//       data: newCommentSaved,
+//     });
+//   } catch (error) {
+//     console.error(
+//       `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+//     );
+//   }
+// };
 
 export const editComment = async (req, res) => {
   try {

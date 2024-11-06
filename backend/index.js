@@ -68,19 +68,22 @@ app.use(ChatsRouter);
 io.on("connection", (socket) => {
   console.log(`> client connected, socket id: ${socket.id}`);
 
+  // realtime like dislike posts
+  socket.on("like-dislike-process", async (posts) => {
+    console.log("Likes total: ", posts);
+    socket.broadcast.emit("show-recent-like-total", posts);
+  });
+
   // comments realtime
-  socket.on("comment-proccess", async (recentComments) => {
+  socket.on("comment-proccess", async (sendComment) => {
+    console.log(sendComment);
     await comments(
-      { body: recentComments },
+      { body: sendComment },
       {
-        status: (code) => ({
-          json: (response) => {
-            console.log(response);
-          },
-        }),
+        status: (code) => ({ json: (response) => console.log(response) }),
       }
     );
-    socket.broadcast.emit("recent-comments", recentComments);
+    socket.broadcast.emit("recent-comments", sendComment);
   });
 
   // recent chats ~ send user id is login for get recent chats ~ blm bener ngaff (kerjain komen dlu)
@@ -140,5 +143,7 @@ io.on("connection", (socket) => {
     console.log(`> client disconnected, socket id: ${socket.id}`);
   });
 });
+
+export { io };
 
 server.listen(port, () => console.log(`Server running on port ${port}...`));

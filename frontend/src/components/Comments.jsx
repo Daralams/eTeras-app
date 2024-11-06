@@ -37,6 +37,13 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
   useEffect(() => {
     getComments();
     socket.on("recent-comments", async (recentComments) => {
+      // console.log("Comments props: ", post);
+      // console.log("Recent comments derr: ", newCommentSaved);
+      // dev ~ untuk memperbaiki cara dubawah ( belum berhasil )
+      // newCommentSaved.map((comment) => {
+      //   console.log(comment.user);
+      // });
+      // setComments((prevComments) => [...prevComments, newCommentSaved]);
       if (post.id === recentComments.postId) {
         const getRecentCommentsByPostId = await axios.get(
           `http://localhost:3000/posts/comments/${recentComments.postId}`
@@ -44,6 +51,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
         const recentCommentSaved = getRecentCommentsByPostId.data.data;
         setComments(recentCommentSaved);
       }
+      console.log(comments);
     });
     return () => socket.off("recent-comments");
   }, []);
@@ -56,7 +64,8 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
       }
       setPostId(post.id);
       setComments(post.comments);
-      console.log("comments: ", post.comments);
+      console.log(comments);
+
       const getFullDataUserIsLoggin = await axios.get(
         `http://localhost:3000/users/${userId}`
       );
@@ -93,13 +102,25 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
   const handleEditBtn = (e) => {
     try {
       const [id, message] = JSON.parse(e.target.value);
+      console.log(`id comment: ${id} \nmessage comment: ${message}`);
       setCommentId(id);
       setMessage(message);
       setIsEditComment(true);
-      setIsEditReplyComment(true);
     } catch (error) {
       console.error(`[client error] an error occurred: ${error}`);
     }
+  };
+
+  // dev
+  const handleEditReplyBtn = (e) => {
+    const [id, message] = JSON.parse(e.target.value);
+    console.log(
+      `id reply comment: ${id} \nreply message comment: ${message} userId: ${userId}`
+    );
+    setCommentId(id);
+    setMessage(message);
+    setIsEditReplyComment(true);
+    console.log({ isEditReplyComment });
   };
 
   const postComment = async (e) => {
@@ -140,7 +161,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
 
   const deleteComment = async (id) => {
     try {
-      const deleteConfirm = confirm("You want delete this post?");
+      const deleteConfirm = confirm("You want delete this comment?");
       if (deleteConfirm == true) {
         const deleted = await axios.delete(
           `http://localhost:3000/posts/comments/${id}`
@@ -178,7 +199,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
         );
         setMessage("");
         setIsReply(false);
-        getComments();
+        socket.emit("comment-proccess", { postId: post.id });
       } else {
         const sendResponseToReply = await axios.post(
           `http://localhost:3000/posts/reply-comment/${parentReplyId}/${commentId}`,
@@ -192,10 +213,10 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
         );
         setMessage("");
         setIsReply(false);
-        getComments();
+        socket.emit("comment-proccess", { postId: post.id });
       }
       // update reply comment
-      // gagal wak, lagi debug
+      // [ MASIH PROSES PERBAIKAN -> EDIT REPLY COMMENT ]
       if (isEditReplyComment) {
         const saveReplyCommentEdited = await axios.patch(
           `http://localhost:3000/posts/reply-comment/${commentId}`,
@@ -204,6 +225,9 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
             message,
           }
         );
+        if (saveReplyCommentEdited) {
+          alert("Berhasil update reply comment!");
+        }
         //debug
         if (saveReplyCommentEdited.error) {
           alert("gagal pante😎");
@@ -212,20 +236,26 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
         setMessage("");
       }
     } catch (error) {
-      console.error(`[client error] an error occurred: ${error}`);
+      console.error(
+        `[client error] an error occurred: ${error} [DETAIL]: ${error.stack}`
+      );
     }
   };
 
   const deleteReplyComment = async (id) => {
-    const deleteConfirm = confirm("You want delete this reply comment?");
-    if (deleteConfirm == true) {
-      const deletedReply = await axios.delete(
-        `http://localhost:3000/posts/reply-comment/${id}`
-      );
-      if (deletedReply.status == 200) {
-        alert("deleted comment successfully");
-        getComments();
+    try {
+      const deleteConfirm = confirm("You want delete this reply comment?");
+      if (deleteConfirm == true) {
+        const deletedReply = await axios.delete(
+          `http://localhost:3000/posts/reply-comment/${id}`
+        );
+        if (deletedReply.status == 200) {
+          alert("deleted reply comment successfully");
+          socket.emit("comment-proccess", { postId: post.id });
+        }
       }
+    } catch (error) {
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
 
@@ -419,7 +449,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
                                                     replies.id,
                                                     replies.message,
                                                   ])}
-                                                  onClick={handleEditBtn}
+                                                  onClick={handleEditReplyBtn}
                                                 >
                                                   <MdEdit /> Edit
                                                 </button>
