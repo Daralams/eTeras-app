@@ -51,7 +51,6 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
         const recentCommentSaved = getRecentCommentsByPostId.data.data;
         setComments(recentCommentSaved);
       }
-      console.log(comments);
     });
     return () => socket.off("recent-comments");
   }, []);
@@ -64,10 +63,11 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
       }
       setPostId(post.id);
       setComments(post.comments);
-      console.log(comments);
-
       const getFullDataUserIsLoggin = await axios.get(
-        `http://localhost:3000/users/${userId}`
+        `http://localhost:3000/users/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
       setUserProfilePhoto(
         getFullDataUserIsLoggin.data.data[0].profile_photo_url
@@ -295,7 +295,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
                       {comment.user.profile_photo_url ? (
                         <img
                           src={comment.user.profile_photo_url}
-                          className="flex justify-center items-center rounded-full  border-[1px] border-indigo-400 w-[30px] h-[30px]"
+                          className="flex justify-center items-center rounded-full border-[1px] border-indigo-400 w-[30px] h-[30px] overflow-hidden object-cover"
                         />
                       ) : (
                         <div className="flex justify-center items-center p-2 w-[30px] h-[30px] rounded-full border-[1px] border-indigo-400">
@@ -399,7 +399,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
                                 {replies.user.profile_photo_url ? (
                                   <img
                                     src={replies.user.profile_photo_url}
-                                    className="flex justify-center items-center rounded-full  border-[1px] border-indigo-400 w-[30px] h-[30px]"
+                                    className="flex justify-center items-center rounded-full  border-[1px] border-indigo-400 w-[30px] h-[30px] object-cover overflow-hidden"
                                   />
                                 ) : (
                                   <div className="flex justify-center items-center p-2 w-[30px] h-[30px] rounded-full border-[1px] border-indigo-400">
@@ -532,7 +532,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
               {userProfilePhoto ? (
                 <img
                   src={userProfilePhoto}
-                  className="flex justify-center items-center w-[38px] h-[35px] rounded-full overflow-hidden"
+                  className="flex justify-center items-center w-[38px] h-[35px] rounded-full overflow-hidden object-cover"
                 />
               ) : (
                 <div className="flex justify-center items-center text-white font-bold font-mono text-md p-3 w-[35px] h-[35px] bg-indigo-600 rounded-full">
@@ -541,7 +541,6 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
               )}
 
               <input type="hidden" value={userId} />
-              {/* <input type="hidden" value={postId} /> */}
               <input type="hidden" value={postId} />
               <textarea
                 type="text"
@@ -568,7 +567,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
               {userProfilePhoto ? (
                 <img
                   src={userProfilePhoto}
-                  className="flex justify-center items-center w-[38px] h-[35px] rounded-full overflow-hidden"
+                  className="flex justify-center items-center w-[38px] h-[35px] rounded-full overflow-hidden object-cover"
                 />
               ) : (
                 <div className="flex justify-center items-center text-white font-bold font-mono text-md p-3 w-[35px] h-[35px] bg-indigo-600 rounded-full">

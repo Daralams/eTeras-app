@@ -1,5 +1,4 @@
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // middleware
@@ -21,6 +20,7 @@ const Posts = () => {
   useEffect(() => {
     getPostsData();
     // ini bisa sebenernya, tapi akan berat karna setiap kali like / dislike request posts ulang
+    // sementara pakai cara ini dulu
     socket.on("show-recent-like-total", async (posts) => {
       // setPosts(posts);
       getPostsData();
@@ -43,11 +43,14 @@ const Posts = () => {
   const getPostsData = async () => {
     try {
       // request new accesstoken
-      const getToken = await auth();
-      setUserId(getToken.userId);
+      const authorization = await auth();
+      if (!authorization) {
+        navigate("/login");
+      }
+      setUserId(authorization.userId);
       // request page using accessToken
       const response = await axios.get("http://localhost:3000/posts", {
-        headers: { Authorization: `Bearer ${getToken.accessToken}` },
+        headers: { Authorization: `Bearer ${authorization.accessToken}` },
       });
       if (response.data.status == "failed") {
         setMsg(response.data.msg);
@@ -55,9 +58,8 @@ const Posts = () => {
         return;
       }
       setPosts(response.data.data);
-      console.log(response.data.data);
     } catch (error) {
-      console.log(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     } finally {
       setIsLoading(false);
     }

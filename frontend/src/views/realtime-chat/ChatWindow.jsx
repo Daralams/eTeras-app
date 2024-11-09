@@ -22,25 +22,27 @@ const ChatWindow = () => {
   }, [senderId]);
 
   const getUserIdIsLogin = async () => {
-    const getUserId = await auth();
-    console.log("Data user id: ", getUserId.userId);
-    setSenderId(getUserId.userId);
+    const authorization = await auth();
+    setSenderId(authorization.userId);
   };
 
   const getReceiverIdFromConversation = async () => {
-    const response = await axios.get(
-      `http://localhost:3000/chats/content/${conversation_id}`
-    );
-    console.log({ response });
-    const id_value = response.data.data;
-    setDate(id_value.createdAt);
-    if (id_value.userId_1 !== senderId) {
-      setReceiverId(id_value.userId_1);
-      return;
-    }
-    if (id_value.userId_2 !== senderId) {
-      setReceiverId(id_value.userId_2);
-      return;
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/chats/content/${conversation_id}`
+      );
+      const id_value = response.data.data;
+      setDate(id_value.createdAt);
+      if (id_value.userId_1 !== senderId) {
+        setReceiverId(id_value.userId_1);
+        return;
+      }
+      if (id_value.userId_2 !== senderId) {
+        setReceiverId(id_value.userId_2);
+        return;
+      }
+    } catch (error) {
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
 

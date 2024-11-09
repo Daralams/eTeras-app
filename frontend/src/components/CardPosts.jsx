@@ -98,7 +98,7 @@ const CardPosts = ({ userId, posts, socket }) => {
                     {post.user.profile_photo_url ? (
                       <img
                         src={post.user.profile_photo_url}
-                        className="flex justify-center items-center w-[30px] h-[30px] border-[1px] font-mono border-indigo-400 overflow-hidden rounded-full"
+                        className="flex justify-center items-center w-[30px] h-[30px] border-[1px] font-mono border-indigo-400 overflow-hidden object-cover rounded-full"
                       />
                     ) : (
                       <p className="flex justify-center items-center w-[30px] h-[30px] p-2 bg-white border-[1px] font-mono border-indigo-400 rounded-full">

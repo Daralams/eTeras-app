@@ -24,7 +24,6 @@ const AuthorProfile = ({ userIdIsLoggin, id }) => {
       const userData = await axios.get(
         `http://localhost:3000/other-profile-user/${id}`
       );
-      console.log({ userData });
       setUser(userData.data.userProfile);
       setCountPosts(userData.data.userProfile.posts.length);
       // get first index string for profile photo
@@ -34,7 +33,7 @@ const AuthorProfile = ({ userIdIsLoggin, id }) => {
       setProfilPhoto(firstLetter);
       setPhotoUrl(userData.data.userProfile.profile_photo_url);
     } catch (error) {
-      console.error(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +58,7 @@ const AuthorProfile = ({ userIdIsLoggin, id }) => {
             {photoUrl ? (
               <img
                 src={photoUrl}
-                className="w-[70px] h-[70px] mt-2 flex justify-center items-center rounded-full border-2 border-fuchsia-400 overflow-hidden"
+                className="w-[70px] h-[70px] mt-2 flex justify-center items-center rounded-full border-2 border-fuchsia-400 overflow-hidden object-cover"
               />
             ) : (
               <div className="w-[70px] h-[70px] mt-2 flex justify-center items-center bg-indigo-400 text-white text-xl font-mono font-bold rounded-full border-2 border-fuchsia-400">

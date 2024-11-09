@@ -200,22 +200,28 @@ export const deleteUserProfilePhoto = async (req, res) => {
 };
 
 export const getUserById = async (req, res) => {
-  const response = await Users.findOne({
-    where: {
-      id: req.params.userId,
-    },
-  });
-  if (!response) {
-    return res.status(404).json({
-      status: "failed",
-      msg: "id is not valid!",
+  try {
+    const response = await Users.findOne({
+      where: {
+        id: req.params.userId,
+      },
     });
+    if (!response) {
+      return res.status(404).json({
+        status: "failed",
+        msg: "id is not valid!",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      msg: `User with id ${req.params.userId} : `,
+      data: [response],
+    });
+  } catch (error) {
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
-  res.status(200).json({
-    status: "success",
-    msg: `User with id ${req.params.userId} : `,
-    data: [response],
-  });
 };
 
 export const getUser = async (req, res) => {

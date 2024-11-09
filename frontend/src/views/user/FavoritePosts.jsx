@@ -27,19 +27,22 @@ const FavoritePosts = () => {
   const getFavPosts = async () => {
     try {
       const getToken = await auth();
+      if (!getToken) {
+        navigate("/login");
+      }
       setUserId(getToken.userId);
       setUsernameIsLoggin(getToken.usernameIsLoggin);
       const favPostsResponse = await axios.get(
-        `http://localhost:3000/profile/${userId}/fav-posts`
+        `http://localhost:3000/profile/${userId}/fav-posts`,
+        {
+          headers: { Authorization: `Bearer ${getToken.accessToken}` },
+        }
       );
       const favPostsData = favPostsResponse.data.data;
       const postsData = favPostsData.map((value) => value.post);
       setPosts(postsData);
     } catch (error) {
-      console.log(error);
-      if (error.response.status == 401) {
-        navigate("/login");
-      }
+      console.error(`[client error] an error occurred: ${error}`);
     } finally {
       setIsLoading(false);
     }

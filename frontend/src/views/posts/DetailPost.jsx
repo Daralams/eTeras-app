@@ -26,6 +26,9 @@ const DetailPost = () => {
   const getPostBySlug = async () => {
     try {
       const authorization = await auth();
+      if (!authorization) {
+        navigate("/login");
+      }
       const response = await axios(`http://localhost:3000/posts/${slug}`, {
         headers: { Authorization: `Bearer ${authorization.accessToken}` },
       });
@@ -35,9 +38,7 @@ const DetailPost = () => {
       setUsernameIsLoggin(authorization.usernameIsLoggin);
       setToken(authorization.accessToken);
     } catch (error) {
-      if (error.response) {
-        navigate("/login");
-      }
+      console.error(`[client error] an error occurred: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +59,7 @@ const DetailPost = () => {
                 <p className="text-sm">
                   By-{" "}
                   <Link
-                    to={`/author/${post.user.username}`}
+                    to={`/search/author/${post.user.id}/${post.user.username}`}
                     className="text-blue-300"
                   >
                     {post.user.username}{" "}

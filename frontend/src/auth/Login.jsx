@@ -29,7 +29,13 @@ function Login() {
     <div className="flex justify-center items-center h-screen">
       <div className="m-3 p-4 border-2 rounded shadow-lg md:w-2/5 ">
         <form className="w-full" onSubmit={login}>
-          <p className="text-center text-red-300 text-sm">{errorMsg}</p>
+          {errorMsg ? (
+            <div className="p-3 border-[1px] text-center text-red-500 text-sm border-red-700 rounded-md">
+              {errorMsg}
+            </div>
+          ) : (
+            ""
+          )}
           <h1 className="text-xl text-center font-bold my-3">Login</h1>
           <label htmlFor="email">Email</label>
           <input
@@ -58,9 +64,9 @@ function Login() {
           >
             Login
           </button>
-          <p className="text-sm text-center text-slate-300">
+          <p className="text-sm text-center text-slate-700">
             Don't have an account yet?{" "}
-            <Link to="/register" className="text-indigo-500">
+            <Link to="/register" className="text-indigo-500 font-bold">
               Register
             </Link>
           </p>

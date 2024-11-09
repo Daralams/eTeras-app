@@ -66,7 +66,9 @@ export const showConversationsUserIsLoggin = async (req, res) => {
     console.log("Recent chats dari controller: ", result);
     res.status(200).json({ data: result });
   } catch (error) {
-    console.log(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -82,7 +84,9 @@ export const showConversationContentById = async (req, res) => {
 
     res.status(200).json({ data: response });
   } catch (error) {
-    console.log(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -166,7 +170,9 @@ export const sendMessage = async (req, res) => {
       },
     ]);
   } catch (error) {
-    console.log(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 

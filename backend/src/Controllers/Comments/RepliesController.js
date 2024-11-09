@@ -36,7 +36,9 @@ export const replyMainComment = async (req, res) => {
     });
     res.sendStatus(200);
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -58,7 +60,9 @@ export const editReplyMainComment = async (req, res) => {
     });
     res.sendStatus(200);
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -114,6 +118,8 @@ export const repliesToReplies = async (req, res) => {
     });
     res.status(200).json({ insertRepliesToReplies });
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };

@@ -15,6 +15,6 @@ export const auth = async () => {
       usernameIsLoggin,
     };
   } catch (error) {
-    console.log(error.message);
+    console.error(`[client error] an error occurred: ${error}`);
   }
 };

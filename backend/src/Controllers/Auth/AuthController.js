@@ -20,20 +20,24 @@ export const register = async (req, res) => {
     });
     if (unique_email)
       return res.status(400).json({
+        status: "failed",
         msg: `Email ${req.body.email} already registered, please use other email!`,
       });
     if (unique_username)
       return res.status(400).json({
+        status: "failed",
         msg: `Username ${req.body.username} already registered, please use other username!`,
       });
     if (input.password.length <= 8)
-      return res
-        .status(400)
-        .json({ msg: "Password must be more than 8 characters!" });
+      return res.status(400).json({
+        status: "failed",
+        msg: "Password must be more than 8 characters!",
+      });
     if (input.confirmPw != input.password)
-      return res
-        .status(400)
-        .json({ msg: "Confirmation password must be match the password!" });
+      return res.status(400).json({
+        status: "failed",
+        msg: "Confirmation password must be match the password!",
+      });
 
     //Hash password
     const hashedPassword = await bcrypt.hash(input.password, 10);
@@ -47,7 +51,9 @@ export const register = async (req, res) => {
     });
     res.status(201).json({ msg: "Register successfully, please login!" });
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -57,15 +63,17 @@ export const login = async (req, res) => {
       where: { email: req.body.email },
     });
     if (!user)
-      return res
-        .status(404)
-        .json({ msg: "Login failed, Email / Password Wrong!" });
+      return res.status(404).json({
+        status: "failed",
+        msg: "Login failed, Email or Password Wrong or not registered!",
+      });
 
     const matchPw = await bcrypt.compareSync(req.body.password, user.password);
     if (!matchPw)
-      return res
-        .status(404)
-        .json({ msg: "Login failed, Email / Password Wrong!" });
+      return res.status(404).json({
+        status: "failed",
+        msg: "Login failed, Email or Password Wrong or not registered!",
+      });
 
     const userId = user.id;
     const userName = user.username;
@@ -76,14 +84,14 @@ export const login = async (req, res) => {
       { userId, userName, userEmail },
       process.env.ACCESS_TOKEN_SECRET,
       {
-        expiresIn: "60s",
+        expiresIn: "1d",
       }
     );
     const refreshToken = jwt.sign(
       { userId, userName, userEmail, registerAt },
       process.env.REFRESH_TOKEN_SECRET,
       {
-        expiresIn: "1d",
+        expiresIn: "7d",
       }
     );
     //update field refresh token
@@ -95,15 +103,17 @@ export const login = async (req, res) => {
     );
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 day
     });
-    console.log("Refresh token: ", refreshToken);
+    // console.log("Refresh token: ", refreshToken);
     // console.log('Access token: ', accessToken)
-    console.log("Cookies: ", res.getHeaders()["set-cookie"]);
+    // console.log("Cookies: ", res.getHeaders()["set-cookie"]);
     // console.log(res.cookie)
     res.json({ accessToken });
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -133,6 +143,8 @@ export const logout = async (req, res) => {
     res.clearCookie("refreshToken");
     return res.sendStatus(200);
   } catch (error) {
-    console.log(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };

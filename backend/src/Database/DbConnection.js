@@ -10,7 +10,9 @@ try {
   console.log("Db connected successfully");
   // await db.sync({force:true})
 } catch (error) {
-  console.error(error.message);
+  console.error(
+    `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+  );
 }
 
 export default db;

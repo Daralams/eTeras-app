@@ -2,11 +2,13 @@ import io from "socket.io-client";
 import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../../middleware/auth";
 
 const socket = io("http://localhost:3000");
 const ChatItem = ({ userIdIsLoggin }) => {
   const [chatItems, setChatItems] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getRecentChatsUserIsLoggin();
@@ -15,20 +17,25 @@ const ChatItem = ({ userIdIsLoggin }) => {
     //   console.log("Recent chat dari socket io: ", recentChats);
     // });
     socket.on("get-recent-chats", (recentChats) => {
-      console.log("Recent chat dari socket io: ", recentChats);
       // setChatItems(recentChats); // Misal, menggunakan state management
     });
   }, [userIdIsLoggin]);
 
   const getRecentChatsUserIsLoggin = async () => {
     try {
+      const authorization = await auth();
+      if (!authorization) {
+        navigate("/login");
+      }
       const recentChat = await axios.get(
-        `http://localhost:3000/chats/${userIdIsLoggin}`
+        `http://localhost:3000/chats/${userIdIsLoggin}`,
+        {
+          headers: { Authorization: `Bearer ${authorization.accessToken}` },
+        }
       );
       setChatItems(recentChat.data.data);
-      console.log("Recent chat: ", recentChat.data.data);
     } catch (error) {
-      console.log(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
   return (

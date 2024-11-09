@@ -8,6 +8,7 @@ import SecondNavbar from "../../components/SecondNavbar";
 import { auth } from "../../middleware/auth";
 
 const AccountSettings = () => {
+  const [token, setToken] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [userLogin, setUserLogin] = useState([]);
   const [userId, setUserId] = useState(0);
@@ -27,8 +28,15 @@ const AccountSettings = () => {
   const authorization = async () => {
     try {
       const user = await auth();
+      setToken(user.accessToken);
+      if (!user) {
+        navigate("/login");
+      }
       const userAuthorized = await axios.get(
-        `http://localhost:3000/users/${user.userId}`
+        `http://localhost:3000/users/${user.userId}`,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
       );
       setUserLogin(userAuthorized.data.data);
       setUserId(userAuthorized.data.data[0].id);
@@ -92,14 +100,17 @@ const AccountSettings = () => {
     formdata.append("username", userName);
     formdata.append("email", userEmail);
     formdata.append("profile_photo_name", userProfilePhotoName);
-    formdata.append("about", userAbout.value == null ? "" : userAbout);
+    formdata.append("about", userAbout);
     formdata.append("date_of_birth", userDateBirth);
     try {
       const requestChange = await axios.patch(
         `http://localhost:3000/dashboard/settings/${userId}`,
         formdata,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       console.log("User mengirim data", formdata);

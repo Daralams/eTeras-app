@@ -16,14 +16,14 @@ import { verifyToken } from "../../Middleware/verifyToken.js";
 const user = express.Router();
 user.get("/dashboard", verifyToken, dashboard);
 user.get("/account-settings/:email", accountSettings);
-user.patch("/dashboard/settings/:userId", updateUserProfile);
+user.patch("/dashboard/settings/:userId", verifyToken, updateUserProfile);
 user.patch(
   "/dashboard/settings/delete-profile-photo/:userId",
   deleteUserProfilePhoto
 );
-user.get("/users/:userId", getUserById);
-user.get("/profile/:userId/fav-posts", favoritedPosts);
-user.get("/profile/:userId/comments-history", commentsHistory);
+user.get("/users/:userId", verifyToken, getUserById);
+user.get("/profile/:userId/fav-posts", verifyToken, favoritedPosts);
+user.get("/profile/:userId/comments-history", verifyToken, commentsHistory);
 user.get("/author/:username", getUser);
 user.get("/token", refreshToken);
 user.get("/other-profile-user/:id", getProfileOtherUser);

@@ -12,11 +12,13 @@ export const getPost = async (req, res) => {
   try {
     const response = await Posts.findAll();
     if (response.length === 0) {
-      throw new Error("No data available");
+      res.status(404).json({ error: "No post available!" });
     }
     res.status(200).json({ data: response });
   } catch (error) {
-    res.status(404).json({ error: error.message });
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -33,7 +35,9 @@ export const getPostById = async (req, res) => {
         .json({ msg: `Post with id : ${req.params.id} not found!` });
     res.status(200).json([response]);
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -65,7 +69,9 @@ export const getPostsByUserId = async (req, res) => {
         .json({ msg: `User id ${validUserId.id} has no posts yet` });
     res.status(200).json({ data: request });
   } catch (error) {
-    console.log(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -105,7 +111,9 @@ export const mostLikePosts = async (req, res) => {
       res.status(200).json({ posts });
     })
     .catch((error) => {
-      console.error("Error:", error);
+      console.error(
+        `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+      );
     });
 };
 
@@ -144,7 +152,9 @@ export const getPosts = async (req, res) => {
       data: response,
     });
   } catch (error) {
-    console.log(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
     res.status(500).json({
       status: "failed",
       msg: error.message,
@@ -172,11 +182,15 @@ export const getPostBySlug = async (req, res) => {
     });
 
     if (!response) {
-      throw new Error(`your request : ${req.params.slug}, Not found!`);
+      res
+        .status(404)
+        .json({ error: `your request : ${req.params.slug}, Not found!` });
     }
     res.status(200).json([response]);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -254,11 +268,15 @@ export const createNewPost = async (req, res) => {
           })),
         });
       } catch (error) {
-        console.log(error.message);
+        console.error(
+          `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+        );
       }
     });
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -370,7 +388,9 @@ export const editPost = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };
 
@@ -398,6 +418,8 @@ export const deletePost = async (req, res) => {
       msg: "Your post has been deleted",
     });
   } catch (error) {
-    console.log(error.message);
+    console.error(
+      `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+    );
   }
 };

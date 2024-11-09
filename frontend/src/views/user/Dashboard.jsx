@@ -1,5 +1,4 @@
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import React, { useState, useEffect } from "react";
 // middleware
 import { auth } from "../../middleware/auth.js";
@@ -33,15 +32,21 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    authorization();
+    dashboardUserIsLoggin();
   }, []);
 
   // show post by author
-  const authorization = async () => {
+  const dashboardUserIsLoggin = async () => {
     try {
-      const user = await auth();
+      const authorization = await auth();
+      if (!authorization) {
+        navigate("/login");
+      }
       const userAuthorized = await axios.get(
-        `http://localhost:3000/users/${user.userId}`
+        `http://localhost:3000/users/${authorization.userId}`,
+        {
+          headers: { Authorization: `Bearer ${authorization.accessToken}` },
+        }
       );
       setUserId(userAuthorized.data.data[0].id);
       setUsername(userAuthorized.data.data[0].username);
@@ -56,15 +61,12 @@ const Dashboard = () => {
       );
 
       const userPost = await axios.get(
-        `http://localhost:3000/author/${user.usernameIsLoggin}`
+        `http://localhost:3000/author/${authorization.usernameIsLoggin}`
       );
       setPosts(userPost.data[1].data[0].posts);
       setTotalPosts(userPost.data[1].data[0].posts.length);
     } catch (error) {
-      if (error.response) {
-        navigate("/login");
-        console.log("Response error: ", error.response);
-      }
+      console.error(`[client error] an error occurred: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +82,7 @@ const Dashboard = () => {
         response();
       }
     } catch (error) {
-      console.error(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
 
@@ -112,9 +114,15 @@ const Dashboard = () => {
                 <p className="text-xl font-bold font-mono md:text-2xl">
                   {userName}
                 </p>
-                <p className="text-md font-semibold text-slate-800">
-                  {userAbout}
-                </p>
+                {/* Masih perlu diperbaiki, jika userAbout == null harusnya isi "" */}
+                {userAbout ? (
+                  <p className="text-md font-semibold text-slate-800">
+                    {userAbout}
+                  </p>
+                ) : (
+                  ""
+                )}
+
                 <div className="flex gap-2 mt-2 mb-3">
                   <p className="font-light">{totalPosts} posts</p>
                   <p className="font-light">2k Followers</p>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { auth } from "../../middleware/auth";
 import { IoArrowBack } from "react-icons/io5";
 
 const ChatHeader = ({ idInterlocutor, alternativeIdInterlocutor }) => {
@@ -13,10 +14,17 @@ const ChatHeader = ({ idInterlocutor, alternativeIdInterlocutor }) => {
   }, [idInterlocutor]);
 
   const getUsernameInterlocutor = async () => {
+    const authorization = await auth();
+    if (!authorization) {
+      navigate("/login");
+    }
     const response = await axios.get(
       `http://localhost:3000/users/${
         idInterlocutor ? idInterlocutor : alternativeIdInterlocutor
-      }`
+      }`,
+      {
+        headers: { Authorization: `Bearer ${authorization.accessToken}` },
+      }
     );
     setUsernameInterlocutor(response.data.data[0].username);
     setProfilePhotoInterlocutor(response.data.data[0].profile_photo_url);

@@ -19,7 +19,6 @@ import UpdatePost from "../views/user/UpdatePost";
 import Posts from "../views/posts/Posts";
 import DetailPost from "../views/posts/DetailPost";
 import PostByCategory from "../views/posts/PostByCategory";
-import PostsByAuthor from "../views/posts/PostsByAuthor";
 // chats
 import MyChats from "../views/realtime-chat/MyChats";
 import ChatWindow from "../views/realtime-chat/ChatWindow";
@@ -44,7 +43,6 @@ const Router = () => {
           <Route path="/posts" element={<Posts />} />
           <Route path={`/posts/:slug`} element={<DetailPost />} />
           <Route path={`/category/:slug`} element={<PostByCategory />} />
-          <Route path={`/author/:username`} element={<PostsByAuthor />}></Route>
           {/* result search user */}
           <Route
             path={`/search/author/:id/:username`}
