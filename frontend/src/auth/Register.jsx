@@ -1,17 +1,26 @@
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import React, { useState } from "react";
-
+// auth popup components
+import AuthSuccess from "../components/popups/AuthSuccess";
+import AuthFailed from "../components/popups/AuthFailed";
+// congrats username, your account successfully registered!
 function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
+  const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [firstMsgSuccess, setFirstMsgSuccess] = useState("");
+  const [lastMsgSuccess, setLastMsgSuccess] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [nextRoute, setNextRoute] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const navigate = useNavigate();
 
   const register = async (e) => {
     e.preventDefault();
+    const removeEmailFormat = email.split("@")[0];
+    setUserEmail(removeEmailFormat);
     try {
       const request = await axios.post("http://localhost:3000/register", {
         username,
@@ -19,9 +28,12 @@ function Register() {
         password,
         confirmPw,
       });
-
-      alert(request.data.msg);
-      navigate("/login");
+      if (request.status == 201) {
+        setRegisterSuccess(true);
+        setFirstMsgSuccess("Congrats,");
+        setLastMsgSuccess("Your account has been successfully registered.");
+        setNextRoute("/login");
+      }
     } catch (error) {
       if (error.response) {
         setErrorMsg(error.response.data.msg);
@@ -33,10 +45,13 @@ function Register() {
     <div className="flex justify-center items-center h-screen">
       <div className="m-3 p-4 rounded shadow-lg md:w-2/5 border-2">
         <form className="w-full" onSubmit={register}>
-          {errorMsg ? (
-            <div className="p-3 border-[1px] text-center text-red-500 text-sm border-red-700 rounded-md">
-              {errorMsg}
-            </div>
+          {registerSuccess ? (
+            <AuthSuccess
+              userEmail={userEmail}
+              firstMsg={firstMsgSuccess}
+              lastMsg={lastMsgSuccess}
+              nextRoute={nextRoute}
+            />
           ) : (
             ""
           )}
@@ -69,13 +84,14 @@ function Register() {
             value={confirmPw}
             onChange={(e) => setConfirmPw(e.target.value)}
           />
+          {errorMsg ? <AuthFailed error={errorMsg} /> : ""}
           <button
             type="submit"
             className={`w-full mt-3 mb-2 px-4 py-2 ${
               (username && email && password && confirmPw).trim().length < 1
                 ? "bg-indigo-200"
                 : "bg-indigo-600"
-            } text-white rounded-sm hover:bg-indigo-300`}
+            } text-white rounded-sm font-bold hover:bg-indigo-300`}
             disabled={
               (username && email && password && confirmPw).trim().length < 1
             }

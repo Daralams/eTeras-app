@@ -1,23 +1,35 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import axios from "axios";
+// auth popup components
+import AuthSuccess from "../components/popups/AuthSuccess";
+import AuthFailed from "../components/popups/AuthFailed";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const navigate = useNavigate();
+  const [loginSuccess, setLoginSuccess] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [firstMsgSuccess, setFirstMsgSuccess] = useState("");
+  const [lastMsgSuccess, setLastMsgSuccess] = useState("");
+  const [nextRoute, setNextRoute] = useState("");
 
   const login = async (e) => {
     e.preventDefault();
+    const removeEmailFormat = email.split("@")[0];
+    setUserEmail(removeEmailFormat);
     try {
-      const request = await axios.post("http://localhost:3000/login", {
+      const loginRequest = await axios.post("http://localhost:3000/login", {
         email,
         password,
       });
-
-      alert("Login success");
-      navigate("/posts");
+      if (loginRequest.status == 200) {
+        setLoginSuccess(true);
+        setFirstMsgSuccess("Welcome");
+        setLastMsgSuccess("Let’s start your new journey!");
+        setNextRoute("/posts");
+      }
     } catch (error) {
       if (error.response) {
         setErrorMsg(error.response.data.msg);
@@ -29,10 +41,13 @@ function Login() {
     <div className="flex justify-center items-center h-screen">
       <div className="m-3 p-4 border-2 rounded shadow-lg md:w-2/5 ">
         <form className="w-full" onSubmit={login}>
-          {errorMsg ? (
-            <div className="p-3 border-[1px] text-center text-red-500 text-sm border-red-700 rounded-md">
-              {errorMsg}
-            </div>
+          {loginSuccess ? (
+            <AuthSuccess
+              userEmail={userEmail}
+              firstMsg={firstMsgSuccess}
+              lastMsg={lastMsgSuccess}
+              nextRoute={nextRoute}
+            />
           ) : (
             ""
           )}
@@ -53,13 +68,14 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          {errorMsg ? <AuthFailed error={errorMsg} /> : ""}
           <button
             type="submit"
             className={`w-full mt-3 mb-2 px-4 py-2 ${
               (email && password).trim().length < 1
                 ? "bg-indigo-200"
                 : "bg-indigo-600"
-            } text-white rounded-sm hover:bg-indigo-300`}
+            } text-white font-bold rounded-sm hover:bg-indigo-300`}
             disabled={(email && password).trim().length < 1}
           >
             Login

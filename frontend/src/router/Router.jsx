@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 // auth
 import Login from "../auth/Login";
@@ -22,6 +21,7 @@ import PostByCategory from "../views/posts/PostByCategory";
 // chats
 import MyChats from "../views/realtime-chat/MyChats";
 import ChatWindow from "../views/realtime-chat/ChatWindow";
+// alert test
 
 const Router = () => {
   return (
