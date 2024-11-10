@@ -5,6 +5,9 @@ import { auth } from "../../middleware/auth.js";
 // components
 import SecondNavbar from "../../components/SecondNavbar";
 import Footer from "../../components/Footer";
+import ConfirmPopup from "../../components/popups/ConfirmPopup.jsx";
+import PopupSuccess from "../../components/popups/PopupSuccess.jsx";
+import AuthFailed from "../../components/popups/AuthFailed.jsx";
 import moment from "moment";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
@@ -28,6 +31,16 @@ const Dashboard = () => {
   const [joinedDate, setJoinedDate] = useState("");
   const [posts, setPosts] = useState([]);
   const [totalPosts, setTotalPosts] = useState(null);
+  // confirm state component
+  const [postToDelete, setPostToDelete] = useState(null);
+  const [isShowConfirmBox, setIsShowConfirmBox] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmMsg, setConfirmMsg] = useState("");
+  const [successDeleted, setSuccessDeleted] = useState(false);
+  const [successPopupTitle, setSuccessPopupTitle] = useState("");
+  const [successPopupMsg, setSuccessPopupMsg] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -72,19 +85,43 @@ const Dashboard = () => {
     }
   };
 
+  const deleteConfirm = (id) => {
+    setPostToDelete(id);
+    setIsShowConfirmBox(true);
+    setConfirmTitle("Delete Post");
+    setConfirmMsg(
+      "Are you sure you want to delete this Post? This action cannot be undone."
+    );
+  };
+
   // delete post
-  const deletePost = async (id) => {
+  const deletePost = async () => {
     try {
-      const deleteConfirm = confirm("You want delete this post?");
-      if (deleteConfirm === true) {
-        const request = await axios.delete(`http://localhost:3000/post/${id}`);
-        alert(request.data.msg);
-        response();
+      if (postToDelete) {
+        const deleteRequest = await axios.delete(
+          `http://localhost:3000/post/${postToDelete}`
+        );
+        if (deleteRequest.status == 200) {
+          setSuccessDeleted(true);
+          setSuccessPopupTitle("Delete post success!");
+          setSuccessPopupMsg(
+            `Your post with id ${postToDelete} deleted successfully!`
+          );
+          setTimeout(() => {
+            dashboardUserIsLoggin();
+          }, 3000);
+        }
       }
     } catch (error) {
+      setIsError(true);
+      setErrorMsg(error.message);
       console.error(`[client error] an error occurred: ${error}`);
+    } finally {
+      setPostToDelete(null);
+      setIsShowConfirmBox(false);
     }
   };
+  const resetSuccessDeleted = () => setSuccessDeleted(false);
 
   return (
     <>
@@ -183,6 +220,33 @@ const Dashboard = () => {
               </Link>
             </div>
 
+            {/* Confirm Popup */}
+            {isShowConfirmBox && (
+              <ConfirmPopup
+                title={confirmTitle}
+                message={confirmMsg}
+                onConfirmDelete={deletePost}
+                onCloseConfirmBox={() => setIsShowConfirmBox(false)}
+              />
+            )}
+            {/* Success deleted popup */}
+            {successDeleted ? (
+              <PopupSuccess
+                state={successDeleted}
+                title={successPopupTitle}
+                message={successPopupMsg}
+                onClose={resetSuccessDeleted}
+              />
+            ) : (
+              ""
+            )}
+            {isError ? (
+              <div className="fixed top-5 right-5 z-50 text-white rounded-md shadow-lg">
+                <AuthFailed error={errorMsg} />
+              </div>
+            ) : (
+              ""
+            )}
             <div className="w-full border-t-0 border-[1px] rounded-b-md p-3">
               {totalPosts < 1 ? (
                 <p className="font-mono font-bold text-center">
@@ -191,6 +255,7 @@ const Dashboard = () => {
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {posts.map((post) => (
+                    // show confirm here
                     <div
                       className="w-[300px] p-3 white border-[1px] rounded hover:shadow-md"
                       key={post.id}
@@ -223,7 +288,7 @@ const Dashboard = () => {
                           <FaRegEdit />
                         </Link>
                         <button
-                          onClick={() => deletePost(post.id)}
+                          onClick={() => deleteConfirm(post.id)}
                           className="text-xl text-slate-500"
                         >
                           <MdDeleteForever />

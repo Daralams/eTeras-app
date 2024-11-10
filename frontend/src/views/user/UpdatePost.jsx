@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { auth } from "../../middleware/auth";
 import { Link, useParams } from "react-router-dom";
 // components
 import SecondNavbar from "../../components/SecondNavbar";
 import Footer from "../../components/Footer";
+import PopupSuccess from "../../components/popups/PopupSuccess";
+import AuthFailed from "../../components/popups/AuthFailed";
 import { FaSave } from "react-icons/fa";
 import { IoSend } from "react-icons/io5";
 import JoditEditor from "jodit-react";
@@ -20,7 +23,10 @@ const UpdatePost = () => {
   const [oldImage, setOldImage] = useState("");
   const [preview, setPreview] = useState("");
   const [content, setContent] = useState("");
-  const [msg, setMsg] = useState("");
+  const [isError, setIsError] = useState("");
+  const [successUpdatePost, setSuccessUpdatePost] = useState(false);
+  const [successPopupTitle, setSuccessPopupTitle] = useState("");
+  const [successPopupMsg, setSuccessPopupMsg] = useState("");
   const { id } = useParams();
 
   useEffect(() => {
@@ -33,14 +39,13 @@ const UpdatePost = () => {
       const response = await axios.get("http://localhost:3000/category");
       setCategories(response.data[1].data);
     } catch (error) {
-      console.error(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
 
   const getPostById = async () => {
     try {
       const response = await axios.get(`http://localhost:3000/post/${id}`);
-      console.log(response);
       setUserId(response.data[0].userId);
       setCategoryId(response.data[0].categoryId);
       setTitle(response.data[0].title);
@@ -49,7 +54,7 @@ const UpdatePost = () => {
       setPreview(response.data[0].imageUrl);
       setContent(response.data[0].content);
     } catch (error) {
-      console.error(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
 
@@ -59,7 +64,6 @@ const UpdatePost = () => {
   };
   const handleContent = (value) => {
     setContent(value);
-    console.log(value);
   };
 
   const loadImage = (e) => {
@@ -70,6 +74,7 @@ const UpdatePost = () => {
 
   const updatePost = async (e) => {
     e.preventDefault();
+    const authorization = await auth();
     const formData = new FormData();
     formData.append("categoryId", categoryId);
     formData.append("userId", userId);
@@ -82,29 +87,49 @@ const UpdatePost = () => {
         `http://localhost:3000/posts/edit/${id}`,
         formData,
         {
-          headers: { "Content-type": "multipart/form-data" },
+          headers: {
+            "Content-type": "multipart/form-data",
+            Authorization: `Bearer ${authorization.accessToken}`,
+          },
         }
       );
-      alert(saveDataUpdated.data.msg);
+      if (saveDataUpdated.status == 200) {
+        setSuccessUpdatePost(true);
+        setSuccessPopupTitle("Update Post");
+        setSuccessPopupMsg("Post updated successfully!");
+      }
     } catch (error) {
       if (error.response) {
-        setMsg(error.response.data.msg);
+        setIsError(error.response.data.msg);
       }
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
+
+  const resetSuccessUpdated = () => setSuccessUpdatePost(false);
 
   return (
     <>
       <SecondNavbar />
       <div className="flex justify-center">
         <div className="mt-5 mb-5 w-4/5 rounded shadow-md p-4 lg:w-3/5">
+          {successUpdatePost ? (
+            <PopupSuccess
+              state={successUpdatePost}
+              title={successPopupTitle}
+              message={successPopupMsg}
+              onClose={resetSuccessUpdated}
+            />
+          ) : (
+            ""
+          )}
           <form onSubmit={updatePost}>
             <p className="mb-3 text-center font-bold text-lg">Edit post</p>
-            <p className="py-2 font-bold text-red-500 text-center">{msg}</p>
+            {isError ? <AuthFailed error={isError} /> : ""}
             <input type="hidden" value={userId} />
             <input
               type="text"
-              className="p-2 w-full border-b-2 border-indigo-400 mb-3 block"
+              className="p-2 w-full border-b-2 border-indigo-400 mt-4 mb-3 block"
               placeholder="Title post"
               value={title}
               onChange={handleTitle}
@@ -138,7 +163,6 @@ const UpdatePost = () => {
                 </option>
               ))}
             </select>
-
             <div className="flex justify-end gap-2 mt-3">
               {/* !! nanti klo dh kelar bikin func save ini !! <button className="bg-blue-500 px-5 py-2 flex items-center gap-2 text-white rounded-md font-bold">Save <FaSave/></button> */}
               <button className="bg-indigo-500 px-5 py-2 flex items-center gap-2 text-white rounded-md font-bold">

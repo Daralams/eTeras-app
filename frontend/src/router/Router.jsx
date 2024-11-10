@@ -21,7 +21,6 @@ import PostByCategory from "../views/posts/PostByCategory";
 // chats
 import MyChats from "../views/realtime-chat/MyChats";
 import ChatWindow from "../views/realtime-chat/ChatWindow";
-// alert test
 
 const Router = () => {
   return (

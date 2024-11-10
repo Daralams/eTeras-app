@@ -6,6 +6,8 @@ import { auth } from "../../middleware/auth.js";
 // components
 import SecondNavbar from "../../components/SecondNavbar";
 import Footer from "../../components/Footer";
+import PopupSuccess from "../../components/popups/PopupSuccess.jsx";
+import AuthFailed from "../../components/popups/AuthFailed.jsx";
 import { FaSave } from "react-icons/fa";
 import { IoSend } from "react-icons/io5";
 import JoditEditor from "jodit-react";
@@ -13,7 +15,6 @@ import slugger from "slug-pixy";
 
 const CreatePost = () => {
   const editor = useRef(null);
-  const [accessToken, setAccessToken] = useState("");
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [userId, setUserId] = useState("");
@@ -22,7 +23,11 @@ const CreatePost = () => {
   const [imageName, setImageName] = useState("");
   const [preview, setPreview] = useState("");
   const [content, setContent] = useState("");
-  const [msg, setMsg] = useState("");
+  const [isError, setIsError] = useState("");
+  const [successCreatePost, setSuccessCreatePost] = useState(false);
+  const [successPopupTitle, setSuccessPopupTitle] = useState("");
+  const [successPopupMsg, setSuccessPopupMsg] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,10 +41,9 @@ const CreatePost = () => {
       if (!authorization) {
         navigate("/login");
       }
-      setAccessToken(authorization.accessToken);
       setUserId(authorization.userId);
     } catch (error) {
-      console.log(error);
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
 
@@ -48,7 +52,7 @@ const CreatePost = () => {
       const response = await axios.get("http://localhost:3000/category");
       setCategories(response.data[1].data);
     } catch (error) {
-      console.error(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
 
@@ -69,6 +73,7 @@ const CreatePost = () => {
 
   const createPost = async (e) => {
     e.preventDefault();
+    const authorization = await auth();
     const formData = new FormData();
     formData.append("categoryId", categoryId);
     formData.append("userId", userId);
@@ -83,27 +88,43 @@ const CreatePost = () => {
         {
           headers: {
             "Content-type": "multipart/form-data",
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${authorization.accessToken}`,
           },
         }
       );
-      alert(savepost.data.msg);
+      if (savepost.status == 201) {
+        setSuccessCreatePost(true);
+        setSuccessPopupTitle("Create Post");
+        setSuccessPopupMsg("New post created successfully!");
+      }
     } catch (error) {
       if (error.response) {
-        setMsg(error.response.data.msg);
+        setIsError(error.response.data.msg);
       }
+      console.error(`[client error] an error occurred: ${error}`);
     }
   };
+
+  const resetSuccessCreated = () => setSuccessCreatePost(false);
 
   return (
     <>
       <SecondNavbar />
       <div className="flex justify-center">
         <div className="mt-5 mb-5 w-4/5 rounded shadow-md p-4 lg:w-3/5">
+          {successCreatePost ? (
+            <PopupSuccess
+              state={successCreatePost}
+              title={successPopupTitle}
+              message={successPopupMsg}
+              onClose={resetSuccessCreated}
+            />
+          ) : (
+            ""
+          )}
           <form onSubmit={createPost}>
-            <p className="mb-3 text-center text-red-500 font-bold text-md">
-              {msg}
-            </p>
+            <p className="mb-3 text-center font-bold text-lg">Create post</p>
+            {isError ? <AuthFailed error={isError} /> : ""}
             <input
               type="hidden"
               value={userId}
@@ -111,7 +132,7 @@ const CreatePost = () => {
             />
             <input
               type="text"
-              className="p-2 w-full border-b-2 border-indigo-400 mb-3 block"
+              className="p-2 w-full border-b-2 border-indigo-400 mt-4 mb-3 block"
               placeholder="Title post"
               value={title}
               onChange={handleTitle}
