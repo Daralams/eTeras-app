@@ -8,6 +8,7 @@ import Navbar from "../../components/Navbar";
 import io from "socket.io-client";
 import CardPosts from "../../components/CardPosts";
 import Footer from "../../components/Footer";
+import Loading from "../../components/Loading.jsx";
 
 const Posts = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -68,9 +69,7 @@ const Posts = () => {
   return (
     <>
       {isLoading ? (
-        <div className="flex justify-center items-center font-bold text-xl">
-          Loading...
-        </div>
+        <Loading />
       ) : (
         <>
           <Navbar />

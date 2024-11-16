@@ -15,7 +15,6 @@ const NotFound = () => {
         <p className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl md:text-4xl">
           Uh-oh!
         </p>
-
         <p className="mt-4 text-sm text-gray-500 sm:text-base md:text-lg">
           We can't find your request page{" "}
           <span className="font-semibold">"{page}"</span>.

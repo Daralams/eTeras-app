@@ -6,6 +6,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import SecondNavbar from "../../components/SecondNavbar";
 import { auth } from "../../middleware/auth";
+import Loading from "../../components/Loading";
 
 const AccountSettings = () => {
   const [token, setToken] = useState("");
@@ -123,9 +124,7 @@ const AccountSettings = () => {
   return (
     <>
       {isLoading ? (
-        <div className="flex justify-center items-center font-bold text-xl">
-          Loading...
-        </div>
+        <Loading />
       ) : (
         <>
           <SecondNavbar title="Settings" />

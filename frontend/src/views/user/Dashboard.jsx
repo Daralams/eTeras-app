@@ -19,6 +19,7 @@ import { MdEmail } from "react-icons/md";
 import { MdOutlineDateRange } from "react-icons/md";
 import { SlHeart } from "react-icons/sl";
 import { GoComment } from "react-icons/go";
+import Loading from "../../components/Loading.jsx";
 
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -126,9 +127,7 @@ const Dashboard = () => {
   return (
     <>
       {isLoading ? (
-        <div className="flex justify-center items-center font-bold text-xl">
-          Loading...
-        </div>
+        <Loading />
       ) : (
         <>
           <SecondNavbar title="Dashboard" />

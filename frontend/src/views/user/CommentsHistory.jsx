@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../../middleware/auth.js";
 // components
 import SecondNavbar from "../../components/SecondNavbar";
+import Loading from "../../components/Loading.jsx";
 
 const CommentsHistory = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -52,9 +53,7 @@ const CommentsHistory = () => {
   return (
     <>
       {isLoading ? (
-        <div className="flex justify-center items-center font-bold text-xl">
-          Loading...
-        </div>
+        <Loading />
       ) : (
         <>
           <SecondNavbar title="Comments" />

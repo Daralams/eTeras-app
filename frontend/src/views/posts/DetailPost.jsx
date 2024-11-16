@@ -8,6 +8,7 @@ import { auth } from "../../middleware/auth.js";
 import SecondNavbar from "../../components/SecondNavbar";
 import Comments from "../../components/Comments";
 import Footer from "../../components/Footer";
+import Loading from "../../components/Loading.jsx";
 
 const DetailPost = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -50,9 +51,7 @@ const DetailPost = () => {
   return (
     <>
       {isLoading ? (
-        <div className="flex justify-center items-center font-bold text-xl">
-          Loading...
-        </div>
+        <Loading />
       ) : (
         <>
           <SecondNavbar />

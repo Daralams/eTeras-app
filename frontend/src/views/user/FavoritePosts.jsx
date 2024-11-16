@@ -8,6 +8,7 @@ import { auth } from "../../middleware/auth.js";
 import SecondNavbar from "../../components/SecondNavbar";
 // import CardPosts from '../../components/CardPosts'
 import { CiMenuKebab } from "react-icons/ci";
+import Loading from "../../components/Loading.jsx";
 
 const FavoritePosts = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -63,9 +64,7 @@ const FavoritePosts = () => {
   return (
     <>
       {isLoading ? (
-        <div className="flex justify-center items-center font-bold text-xl">
-          Loading...
-        </div>
+        <Loading />
       ) : (
         <>
           <SecondNavbar title="Favorite" />

@@ -6,9 +6,11 @@ import { auth } from "../../middleware/auth.js";
 import SecondNavbar from "../../components/SecondNavbar";
 import AuthorProfile from "./AuthorProfile";
 import AuthorPosts from "./AuthorPosts";
+import Loading from "../../components/Loading.jsx";
 
 const LandingUserSearchResult = () => {
   const [userIdIsLoggin, setUserIdIsLoggin] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { id } = useParams();
 
   useEffect(() => {
@@ -16,15 +18,27 @@ const LandingUserSearchResult = () => {
   }, [userIdIsLoggin]);
 
   const userIsLoggin = async () => {
-    const userData = await auth();
-    setUserIdIsLoggin(userData.userId);
+    try {
+      const userData = await auth();
+      setUserIdIsLoggin(userData.userId);
+    } catch (error) {
+      console.error(`[client error] an error occurred: ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <>
-      <SecondNavbar />
-      <AuthorProfile userIdIsLoggin={userIdIsLoggin} id={id} />
-      <AuthorPosts id={id} />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <>
+          <SecondNavbar />
+          <AuthorProfile userIdIsLoggin={userIdIsLoggin} id={id} />
+          <AuthorPosts id={id} />
+        </>
+      )}
     </>
   );
 };
