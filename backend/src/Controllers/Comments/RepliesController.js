@@ -34,7 +34,7 @@ export const replyMainComment = async (req, res) => {
       referenced_username: replyData.referencedUsername,
       message: replyData.message,
     });
-    res.sendStatus(200);
+    res.sendStatus(201);
   } catch (error) {
     console.error(
       `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
@@ -116,7 +116,7 @@ export const repliesToReplies = async (req, res) => {
       referenced_username: nestedRepliesData.referencedUsername,
       message: nestedRepliesData.message,
     });
-    res.status(200).json({ insertRepliesToReplies });
+    res.status(201).json({ insertRepliesToReplies });
   } catch (error) {
     console.error(
       `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`

@@ -3,6 +3,8 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import io from "socket.io-client";
+import PopupSuccess from "./popups/PopupSuccess.jsx";
+import ConfirmPopup from "./popups/ConfirmPopup.jsx";
 import { LuSendHorizonal } from "react-icons/lu";
 import { IoClose } from "react-icons/io5";
 import { CiMenuKebab } from "react-icons/ci";
@@ -22,6 +24,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
   const [parentReplyId, setParentReplyId] = useState("");
   const [referenced_username, setReferencedUsername] = useState("");
   const [commentId, setCommentId] = useState("");
+  const [replyCommentId, setReplyCommentId] = useState("");
   // state untuk mengecek status balas balasan lain.
   const [isReplyToReply, setIsReplyToReply] = useState(false);
   // state open, close drop down
@@ -33,6 +36,17 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
   // show reply state
   const [displayBtnTarget, setDisplayBtnTarget] = useState(null);
   const { slug } = useParams();
+  // popup state
+  const [commentToDelete, setCommentToDelete] = useState(null);
+  const [replyCommentToDelete, setReplyCommentToDelete] = useState(null);
+  const [isShowConfirmBox, setIsShowConfirmBox] = useState(false);
+  const [isShowReplyConfirmBox, setIsShowReplyConfirmBox] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmMsg, setConfirmMsg] = useState("");
+  const [successDeleted, setSuccessDeleted] = useState(false);
+  const [successSendComment, setSuccessSendComment] = useState(false);
+  const [successPopupTitle, setSuccessPopupTitle] = useState("");
+  const [successPopupMsg, setSuccessPopupMsg] = useState("");
 
   useEffect(() => {
     getComments();
@@ -101,32 +115,26 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
 
   const handleEditBtn = (e) => {
     try {
-      const [id, message] = JSON.parse(e.target.value);
-      console.log(`id comment: ${id} \nmessage comment: ${message}`);
-      setCommentId(id);
+      const { id, message, state } = JSON.parse(e.target.value);
+      if (state == "comment") {
+        setCommentId(id);
+        setIsEditComment(true);
+      }
+      if (state == "reply") {
+        setReplyCommentId(id);
+        setIsEditReplyComment(true);
+        alert("Fitur ini masih bug!, sedang tahap perbaikan.");
+      }
       setMessage(message);
-      setIsEditComment(true);
     } catch (error) {
       console.error(`[client error] an error occurred: ${error}`);
     }
   };
 
-  // dev
-  const handleEditReplyBtn = (e) => {
-    const [id, message] = JSON.parse(e.target.value);
-    console.log(
-      `id reply comment: ${id} \nreply message comment: ${message} userId: ${userId}`
-    );
-    setCommentId(id);
-    setMessage(message);
-    setIsEditReplyComment(true);
-    console.log({ isEditReplyComment });
-  };
-
   const postComment = async (e) => {
     e.preventDefault();
     try {
-      if (!isEditComment) {
+      if (!isEditComment && !isEditReplyComment) {
         const sendComment = await axios.post(
           `http://localhost:3000/posts/comments/${postId}`,
           {
@@ -135,10 +143,18 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
             message,
           }
         );
-        const commentMsg = { postId, userId, message };
-        setMessage("");
-        socket.emit("comment-proccess", commentMsg);
-      } else {
+        if (sendComment.status == 201) {
+          setSuccessSendComment(true);
+          setSuccessPopupTitle("Send Comment");
+          setSuccessPopupMsg("Sending your comment...");
+          setMessage("");
+          setTimeout(async () => {
+            const commentMsg = { postId, userId, message };
+            socket.emit("comment-proccess", commentMsg);
+          }, 5000);
+        }
+      }
+      if (!isEditReplyComment) {
         // edit comment
         const saveCommentEditted = await axios.patch(
           `http://localhost:3000/posts/comments/${commentId}`,
@@ -148,26 +164,43 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
           }
         );
         if (saveCommentEditted.status == 200) {
-          alert("Comment editted successfully!");
+          setSuccessSendComment(true);
+          setSuccessPopupTitle("Update Comment");
+          setSuccessPopupMsg("Sending your updated comment...");
           setMessage("");
           setIsEditComment(false);
-          socket.emit("comment-proccess", { postId: post.id });
+          setIsDropdownOpen(false);
+          setTimeout(async () => {
+            socket.emit("comment-proccess", { postId: post.id });
+          }, 5000);
         }
       }
     } catch (error) {
       console.error(`[client error] an error occurred: ${error}`);
     }
+  };
+  const resetSendingCommentSuccess = () => setSuccessSendComment(false);
+
+  const deleteConfirm = (id) => {
+    setIsDropdownOpen(false);
+    setCommentToDelete(id);
+    setIsShowConfirmBox(true);
+    setConfirmTitle("Delete Comment");
+    setConfirmMsg(
+      "Are you sure you want to delete this Comment? This action cannot be undone."
+    );
   };
 
-  const deleteComment = async (id) => {
+  const deleteComment = async () => {
     try {
-      const deleteConfirm = confirm("You want delete this comment?");
-      if (deleteConfirm == true) {
+      if (commentToDelete) {
         const deleted = await axios.delete(
-          `http://localhost:3000/posts/comments/${id}`
+          `http://localhost:3000/posts/comments/${commentToDelete}`
         );
         if (deleted.status == 200) {
-          alert("Comment deleted successfuly");
+          setSuccessDeleted(true);
+          setSuccessPopupTitle("Delete Comment");
+          setSuccessPopupMsg("Comment deleted successfully!");
           socket.emit("comment-proccess", { postId: post.id });
         }
       }
@@ -175,6 +208,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
       console.error(`[client error] an error occurred: ${error}`);
     }
   };
+  const resetSuccessDeleted = () => setSuccessDeleted(false);
 
   // display reply comment when user klik button
   const displayReplyComment = (id) => {
@@ -197,9 +231,27 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
             message,
           }
         );
-        setMessage("");
-        setIsReply(false);
-        socket.emit("comment-proccess", { postId: post.id });
+        if (sendReplyComment.status == 201) {
+          setSuccessSendComment(true);
+          setSuccessPopupTitle("Send Reply Comment");
+          setSuccessPopupMsg("Sending your reply comment...");
+          setMessage("");
+          setIsReply(false);
+          setTimeout(async () => {
+            socket.emit("comment-proccess", { postId: post.id });
+          }, 5000);
+        }
+      } else if (isEditReplyComment) {
+        const sendReplyEditted = await axios.patch(
+          `http://localhost:3000/posts/reply-comment/${replyCommentId}`,
+          {
+            userId,
+            message,
+          }
+        );
+        if (sendReplyEditted.status == 200) {
+          alert("Reply comment editted successfully");
+        }
       } else {
         const sendResponseToReply = await axios.post(
           `http://localhost:3000/posts/reply-comment/${parentReplyId}/${commentId}`,
@@ -211,29 +263,16 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
             message,
           }
         );
-        setMessage("");
-        setIsReply(false);
-        socket.emit("comment-proccess", { postId: post.id });
-      }
-      // update reply comment
-      // [ MASIH PROSES PERBAIKAN -> EDIT REPLY COMMENT ]
-      if (isEditReplyComment) {
-        const saveReplyCommentEdited = await axios.patch(
-          `http://localhost:3000/posts/reply-comment/${commentId}`,
-          {
-            userId,
-            message,
-          }
-        );
-        if (saveReplyCommentEdited) {
-          alert("Berhasil update reply comment!");
+        if (sendResponseToReply.status == 201) {
+          setSuccessSendComment(true);
+          setSuccessPopupTitle("Send Reply Comment");
+          setSuccessPopupMsg("Sending your reply comment...");
+          setMessage("");
+          setIsReply(false);
+          setTimeout(async () => {
+            socket.emit("comment-proccess", { postId: post.id });
+          }, 5000);
         }
-        //debug
-        if (saveReplyCommentEdited.error) {
-          alert("gagal pante😎");
-        }
-        console.log("yg dijalanin function edit reply ");
-        setMessage("");
       }
     } catch (error) {
       console.error(
@@ -242,15 +281,25 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
     }
   };
 
-  const deleteReplyComment = async (id) => {
+  const deleteReplyConfirm = (id) => {
+    setIsDropdownOpen(false);
+    setReplyCommentToDelete(id);
+    setIsShowReplyConfirmBox(true);
+    setConfirmTitle("Delete Reply Comment");
+    setConfirmMsg(
+      "Are you sure you want to delete this Reply Comment? This action cannot be undone."
+    );
+  };
+  const deleteReplyComment = async () => {
     try {
-      const deleteConfirm = confirm("You want delete this reply comment?");
-      if (deleteConfirm == true) {
+      if (replyCommentToDelete) {
         const deletedReply = await axios.delete(
-          `http://localhost:3000/posts/reply-comment/${id}`
+          `http://localhost:3000/posts/reply-comment/${replyCommentToDelete}`
         );
         if (deletedReply.status == 200) {
-          alert("deleted reply comment successfully");
+          setSuccessDeleted(true);
+          setSuccessPopupTitle("Delete Reply Comment");
+          setSuccessPopupMsg("Reply Comment deleted successfully!");
           socket.emit("comment-proccess", { postId: post.id });
         }
       }
@@ -289,6 +338,26 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
               </p>
             ) : (
               <>
+                {/* Confirm delete popup */}
+                {isShowConfirmBox && (
+                  <ConfirmPopup
+                    title={confirmTitle}
+                    message={confirmMsg}
+                    onConfirmDelete={deleteComment}
+                    onCloseConfirmBox={() => setIsShowConfirmBox(false)}
+                  />
+                )}
+                {/* Success deleted popup */}
+                {successDeleted ? (
+                  <PopupSuccess
+                    state={successDeleted}
+                    title={successPopupTitle}
+                    message={successPopupMsg}
+                    onClose={resetSuccessDeleted}
+                  />
+                ) : (
+                  ""
+                )}
                 {comments.map((comment) => (
                   <div className="mb-4" key={comment.id}>
                     <div className="flex gap-2">
@@ -333,10 +402,11 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
                                     <>
                                       <button
                                         className="flex items-center gap-1.5 pl-2 pr-8 text-sm hover:bg-slate-100"
-                                        value={JSON.stringify([
-                                          comment.id,
-                                          comment.message,
-                                        ])}
+                                        value={JSON.stringify({
+                                          id: comment.id,
+                                          message: comment.message,
+                                          state: "comment",
+                                        })}
                                         onClick={handleEditBtn}
                                       >
                                         <MdEdit /> Edit
@@ -344,7 +414,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
                                       <button
                                         className="flex items-center gap-1.5 pl-2 pr-6 mt-1.5 text-sm hover:bg-slate-100"
                                         onClick={() =>
-                                          deleteComment(comment.id)
+                                          deleteConfirm(comment.id)
                                         }
                                       >
                                         <CiTrash /> Delete
@@ -389,6 +459,17 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
                                 ""
                               )}
                             </div>
+                            {/* Confirm delete reply popup */}
+                            {isShowReplyConfirmBox && (
+                              <ConfirmPopup
+                                title={confirmTitle}
+                                message={confirmMsg}
+                                onConfirmDelete={deleteReplyComment}
+                                onCloseConfirmBox={() =>
+                                  setIsShowReplyConfirmBox(false)
+                                }
+                              />
+                            )}
                             {comment.reply_comments.map((replies) => (
                               <div
                                 className={`mt-4 flex gap-2 ${
@@ -426,7 +507,6 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
                                         {replies.message}
                                       </p>
                                     </div>
-                                    {/*<p>parent reply id : {replies.parentReplyId}</p> */}
                                     <div className="relative">
                                       <button
                                         onClick={() =>
@@ -438,25 +518,27 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
                                         <CiMenuKebab />
                                       </button>
                                       {isDropdownOpen &&
-                                        selectedReplyCommentId && (
+                                        selectedReplyCommentId ==
+                                          replies.id && (
                                           <div className="absolute bottom-0 right-2 top-5 w-[100px] p-1.5  h-14 shadow-md rounded-sm bg-white block">
                                             {isLogin &&
                                             userId === replies.userId ? (
                                               <>
                                                 <button
                                                   className="flex items-center gap-1.5 pl-2 pr-8 text-sm hover:bg-slate-100"
-                                                  value={JSON.stringify([
-                                                    replies.id,
-                                                    replies.message,
-                                                  ])}
-                                                  onClick={handleEditReplyBtn}
+                                                  value={JSON.stringify({
+                                                    id: replies.id,
+                                                    message: replies.message,
+                                                    state: "reply",
+                                                  })}
+                                                  onClick={handleEditBtn}
                                                 >
                                                   <MdEdit /> Edit
                                                 </button>
                                                 <button
                                                   className="flex items-center gap-1.5 pl-2 pr-6 mt-1.5 text-sm bg-slate-100"
                                                   onClick={() =>
-                                                    deleteReplyComment(
+                                                    deleteReplyConfirm(
                                                       replies.id
                                                     )
                                                   }
@@ -529,6 +611,16 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
               className="border-2 flex items-center gap-1.5 p-2"
               onSubmit={postComment}
             >
+              {successSendComment ? (
+                <PopupSuccess
+                  state={successSendComment}
+                  title={successPopupTitle}
+                  message={successPopupMsg}
+                  onClose={resetSendingCommentSuccess}
+                />
+              ) : (
+                ""
+              )}
               {userProfilePhoto ? (
                 <img
                   src={userProfilePhoto}
