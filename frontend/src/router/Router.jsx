@@ -21,6 +21,7 @@ import PostByCategory from "../views/posts/PostByCategory";
 // chats
 import MyChats from "../views/realtime-chat/MyChats";
 import ChatWindow from "../views/realtime-chat/ChatWindow";
+import NotFound from "../views/error-page/NotFound";
 
 const Router = () => {
   return (
@@ -52,6 +53,8 @@ const Router = () => {
             path="/chats/content/:userId/:conversation_id"
             element={<ChatWindow />}
           />
+          {/* error: page not found */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </>

@@ -38,6 +38,9 @@ const DetailPost = () => {
       setUsernameIsLoggin(authorization.usernameIsLoggin);
       setToken(authorization.accessToken);
     } catch (error) {
+      if (error.response.status == 404) {
+        navigate("*");
+      }
       console.error(`[client error] an error occurred: ${error}`);
     } finally {
       setIsLoading(false);
