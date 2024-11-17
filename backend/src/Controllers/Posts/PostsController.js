@@ -405,7 +405,9 @@ export const deletePost = async (req, res) => {
       });
 
     const filePath = `./public/images/${post.imageName}`;
-    fs.unlinkSync(filePath); // delete file from public folder
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
 
     const deletePost = await Posts.destroy({
       where: {

@@ -2,7 +2,7 @@
 import { auth } from "../../middleware/auth.js";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import SecondNavbar from "../../components/SecondNavbar";
+import Navbar from "../../components/Navbar.jsx";
 import ChatItem from "../../components/chat-components/ChatItem";
 import Loading from "../../components/Loading.jsx";
 
@@ -35,7 +35,7 @@ const MyChats = () => {
         <Loading />
       ) : (
         <>
-          <SecondNavbar title="Chats" />
+          <Navbar />
           <ChatItem userIdIsLoggin={userIdIsLoggin} />
         </>
       )}

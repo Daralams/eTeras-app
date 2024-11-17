@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 // middleware
 import { auth } from "../../middleware/auth.js";
 // components
-import SecondNavbar from "../../components/SecondNavbar";
+import Navbar from "../../components/Navbar.jsx";
 import Footer from "../../components/Footer";
 import ConfirmPopup from "../../components/popups/ConfirmPopup.jsx";
 import PopupSuccess from "../../components/popups/PopupSuccess.jsx";
@@ -130,7 +130,7 @@ const Dashboard = () => {
         <Loading />
       ) : (
         <>
-          <SecondNavbar title="Dashboard" />
+          <Navbar />
           <div className="p-4">
             <div className="flex flex-wrap gap-8 justify-center mt-4 border-[1px] rounded-t-md">
               {previewImgProfile ? (
