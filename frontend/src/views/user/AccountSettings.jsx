@@ -7,6 +7,9 @@ import { MdDelete } from "react-icons/md";
 import SecondNavbar from "../../components/SecondNavbar";
 import { auth } from "../../middleware/auth";
 import Loading from "../../components/Loading";
+import PopupSuccess from "../../components/popups/PopupSuccess";
+import AuthFailed from "../../components/popups/AuthFailed";
+import ConfirmPopup from "../../components/popups/ConfirmPopup";
 
 const AccountSettings = () => {
   const [token, setToken] = useState("");
@@ -20,6 +23,16 @@ const AccountSettings = () => {
   const [previewImgProfile, setPreviewImgProfile] = useState("");
   const [userDateBirth, setUserDateBirth] = useState("");
   const [userRegisterAt, setUserRegisterAt] = useState("");
+  const [successUpdateProfile, setSuccessUpdateProfile] = useState(false);
+  const [successPopupTitle, setSuccessPopupTitle] = useState("");
+  const [successPopupMsg, setSuccessPopupMsg] = useState("");
+  const [isShowConfirmBox, setIsShowConfirmBox] = useState(false);
+  const [isDeleteProfile, setIsDeleteProfile] = useState(false);
+  const [isDiscardChanges, setIsDiscardChanges] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmMsg, setConfirmMsg] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,32 +78,48 @@ const AccountSettings = () => {
     setPreviewImgProfile(URL.createObjectURL(userProfilePhoto));
   };
 
+  const handleConfirm = async (state) => {
+    if (state == "delete") {
+      setIsDeleteProfile(true);
+      setConfirmTitle("Delete profile photo");
+      setConfirmMsg(
+        "Are you sure you want to delete this profile photo? This action cannot be undone."
+      );
+    }
+    if (state == "discard") {
+      setIsDiscardChanges(true);
+      setConfirmTitle("Discard Changes");
+      setConfirmMsg(
+        "Are you sure you want to leave? Your changes will not be saved"
+      );
+    }
+    setIsShowConfirmBox(true);
+  };
+
   const deleteProfilePhoto = async () => {
-    const confirmDelete = confirm("delete profile photo?");
-    if (confirmDelete) {
+    if (isDeleteProfile) {
       try {
         const requestDelete = await axios.patch(
           `http://localhost:3000/dashboard/settings/delete-profile-photo/${userId}`
         );
-        if (requestDelete) {
-          setUserProfilePhotoName(null);
-          setPreviewImgProfile(null);
-          alert(requestDelete.data.msg);
+        if (requestDelete.status == 201) {
+          setSuccessUpdateProfile(true);
+          setSuccessPopupTitle("Delete profile photo");
+          setSuccessPopupMsg("Profile photo deleted successfully");
           setTimeout(() => {
             navigate("/dashboard");
-          }, 2000);
+          }, 5000);
         }
       } catch (error) {
+        setIsError(true);
+        setErrorMsg(error.message);
         console.error(`[client error] an error occurred: ${error}`);
       }
     }
   };
 
   const discardChanges = () => {
-    const cancelChanges = confirm(
-      "Are you sure you want to leave? Your changes will not be saved"
-    );
-    if (cancelChanges) {
+    if (isDiscardChanges) {
       navigate("/dashboard");
     }
   };
@@ -114,13 +143,22 @@ const AccountSettings = () => {
           },
         }
       );
-      console.log("User mengirim data", formdata);
-      alert(requestChange.data.msg);
-      navigate("/dashboard");
+      if (requestChange.status == 201) {
+        setSuccessUpdateProfile(true);
+        setSuccessPopupTitle("Update profile");
+        setSuccessPopupMsg("Profile updated successfully");
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 5000);
+      }
     } catch (error) {
+      setIsError(true);
+      setErrorMsg(error);
       console.error(`[client error] an error occurred: ${error}`);
     }
   };
+  const resetSuccessUpdated = () => setSuccessUpdateProfile(false);
+
   return (
     <>
       {isLoading ? (
@@ -129,6 +167,35 @@ const AccountSettings = () => {
         <>
           <SecondNavbar title="Settings" />
           <div className="m-5">
+            {successUpdateProfile && (
+              <PopupSuccess
+                state={successUpdateProfile}
+                title={successPopupTitle}
+                message={successPopupMsg}
+                onClose={resetSuccessUpdated}
+              />
+            )}
+            {isError && (
+              <div className="fixed top-5 right-5 z-50 text-white rounded-md shadow-lg">
+                <AuthFailed error={errorMsg} />
+              </div>
+            )}
+            {isShowConfirmBox && isDeleteProfile && (
+              <ConfirmPopup
+                title={confirmTitle}
+                message={confirmMsg}
+                onConfirmDelete={deleteProfilePhoto}
+                onCloseConfirmBox={() => setIsShowConfirmBox(false)}
+              />
+            )}
+            {isShowConfirmBox && isDiscardChanges && (
+              <ConfirmPopup
+                title={confirmTitle}
+                message={confirmMsg}
+                onConfirmDelete={discardChanges}
+                onCloseConfirmBox={() => setIsShowConfirmBox(false)}
+              />
+            )}
             <form
               className="flex flex-col justify-center items-center mt-4"
               onSubmit={updateUserProfile}
@@ -153,7 +220,7 @@ const AccountSettings = () => {
                   <div className="flex gap-2">
                     <div
                       className=" mt-3 w-8 h-8 p-2 bg-red-500 text-white cursor-pointer rounded relative"
-                      onClick={deleteProfilePhoto}
+                      onClick={() => handleConfirm("delete")}
                     >
                       <MdDelete />
                     </div>
@@ -228,7 +295,7 @@ const AccountSettings = () => {
                 <div
                   type="submit"
                   className="px-4 py-2 text-white font-bold bg-slate-500 hover:bg-slate-400 rounded cursor-pointer"
-                  onClick={discardChanges}
+                  onClick={() => handleConfirm("discard")}
                 >
                   Discard
                 </div>

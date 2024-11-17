@@ -82,7 +82,7 @@ const ConfirmPopup = ({
                 onClick={deleteItem}
                 className="w-full sm:w-auto inline-flex justify-center rounded-md px-4 py-2 bg-red-500 text-white font-medium hover:bg-red-700 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
               >
-                Delete
+                {title == "Discard Changes" ? "Discard" : "Delete"}
               </button>
               <button
                 onClick={onCloseConfirmBox}
