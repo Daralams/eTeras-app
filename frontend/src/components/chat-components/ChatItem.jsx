@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../../middleware/auth";
 
-const socket = io("http://localhost:3000");
+const socket = io("http://localhost:3000"); // dev
 const ChatItem = ({ userIdIsLoggin }) => {
   const [chatItems, setChatItems] = useState([]);
   const [loadRecentChats, setLoadRecentChats] = useState(true);
@@ -13,13 +13,6 @@ const ChatItem = ({ userIdIsLoggin }) => {
 
   useEffect(() => {
     getRecentChatsUserIsLoggin();
-    // socket.on("update-recent-chats", (recentChats) => {
-    //   setChatItems(recentChats); // Misal, menggunakan state management
-    //   console.log("Recent chat dari socket io: ", recentChats);
-    // });
-    socket.on("get-recent-chats", (recentChats) => {
-      // setChatItems(recentChats); // Misal, menggunakan state management
-    });
   }, [userIdIsLoggin]);
 
   const getRecentChatsUserIsLoggin = async () => {

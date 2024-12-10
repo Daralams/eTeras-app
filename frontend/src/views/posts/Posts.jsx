@@ -21,23 +21,10 @@ const Posts = () => {
 
   useEffect(() => {
     getPostsData();
-    // ini bisa sebenernya, tapi akan berat karna setiap kali like / dislike request posts ulang
-    // sementara pakai cara ini dulu
+    // dev
     socket.on("show-recent-like-total", async (posts) => {
-      // setPosts(posts);
       getPostsData();
     });
-    // dev ~ untuk memperbaiki cara diatas ( belum berhasil )
-    // socket.on("show-recent-like-total", (updatedPost) => {
-    //   setPosts((prevPosts) =>
-    //     prevPosts.map((post) =>
-    //       post.id === updatedPost.id
-    //         ? { ...post, likes: updatedPost.likes }
-    //         : post
-    //     )
-    //   );
-    //   console.log("Updated posts: ", updatedPost);
-    // });
     return () => socket.off("show-recent-like-total");
   }, []);
 

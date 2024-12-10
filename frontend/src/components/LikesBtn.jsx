@@ -1,9 +1,9 @@
+// dev
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import React, { useState, useEffect } from "react";
 import { SlHeart } from "react-icons/sl";
 
-/* !! COMPONEN INI BELUM DI PAKE NGAFF MASIH BELUM JALAN, SEMENTARA TOMBOLNYA MASIH JADI SATU AMA CARD POST !! */
 const LikesBtn = () => {
   const [userName, setUserName] = useState("");
   const [token, setToken] = useState("");

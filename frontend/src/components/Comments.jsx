@@ -51,13 +51,6 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
   useEffect(() => {
     getComments();
     socket.on("recent-comments", async (recentComments) => {
-      // console.log("Comments props: ", post);
-      // console.log("Recent comments derr: ", newCommentSaved);
-      // dev ~ untuk memperbaiki cara dubawah ( belum berhasil )
-      // newCommentSaved.map((comment) => {
-      //   console.log(comment.user);
-      // });
-      // setComments((prevComments) => [...prevComments, newCommentSaved]);
       if (post.id === recentComments.postId) {
         const getRecentCommentsByPostId = await axios.get(
           `http://localhost:3000/posts/comments/${recentComments.postId}`

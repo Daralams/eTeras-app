@@ -14,7 +14,7 @@ const Footer = () => {
           </Link>{" "}
           All rights reserved.
         </p>
-        <p class="text-sm md:text-base mt-2 md:mt-0">eTeras v1.0</p>
+        <p class="text-sm font-bold md:text-base mt-2 md:mt-0">eTeras v1.0</p>
       </div>
     </footer>
   );

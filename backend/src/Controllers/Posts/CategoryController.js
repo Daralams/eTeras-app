@@ -29,15 +29,6 @@ export const getCategoryBySlug = async (req, res) => {
         error: `Your request Category : ${req.params.slug}, not found!`,
       });
     }
-    // Tahap perbaikan !!
-    // console.log(categoryName[0])
-    // Check if any posts exist for the category
-    // if (categoryName[0].Posts.length === 0) {
-    //   return res.status(200).json([
-    //     { msg: `Posts for category ${req.params.name} are not available` },
-    //     { data: categoryName }
-    //   ])
-    // }
     res
       .status(200)
       .json([

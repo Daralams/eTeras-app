@@ -18,18 +18,6 @@ const CardPosts = ({ userId, posts, socket }) => {
 
   useEffect(() => {
     userLiked();
-    // socket.on("show-recent-like-total", async (posts) => {
-    //   const authorization = await auth();
-    //   const token = authorization.accessToken;
-    //   const response = await axios.get("http://localhost:3000/posts", {
-    //     headers: { Authorization: `Bearer ${token}` },
-    //   });
-    //   console.log("Response cuy: ", response);
-    //   console.log({ token });
-    //   setPosts(posts);
-    //   console.log(posts);
-    // });
-    // return () => socket.off("show-recent-like-total");
   }, []);
 
   const likeDislike = async (id) => {
@@ -40,22 +28,8 @@ const CardPosts = ({ userId, posts, socket }) => {
     });
     socket.emit("like-dislike-process", { postId, userId });
   };
-  // msh prosses debugging
+  // dev
   const userLiked = async () => {
-    // const getUserIdFromLike = posts.flatMap(post => post.likes.map(like => {
-    //   // sekian dan terima kasih
-    //   const listUserId = [like.userId]
-    //   let getUserId = []
-    //   listUserId.forEach((id) => {
-    //     getUserId.push(id)
-    //   })
-    //   console.log(getUserId)
-    //   const foundIdIsLoggin = getUserId.find((id) => id == userId)
-    //   // console.log(foundIdIsLoggin)
-    //   // setLiked(like.userId)
-    //   }
-    // ))
-    // const test = posts.map(post => post.likes.map(like => console.log(like)))
     const getUserIdFromLike = posts.flatMap((post) =>
       post.likes.map((like) => like.userId)
     );

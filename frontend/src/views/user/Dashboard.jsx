@@ -163,7 +163,7 @@ const Dashboard = () => {
                   <p className="text-xl font-bold font-mono md:text-2xl">
                     {userName}
                   </p>
-                  {/* Masih perlu diperbaiki, jika userAbout == null harusnya isi "" */}
+                  {/* dev, jika userAbout == null harusnya isi "" */}
                   {userAbout ? (
                     <p className="text-md font-semibold text-slate-800">
                       {userAbout}

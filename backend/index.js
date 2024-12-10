@@ -70,6 +70,16 @@ app.use(ChatsRouter);
 app.use(sendEmailRoute);
 app.use(FollowersFollowingRoute);
 
+try {
+  await db.authenticate();
+  console.log("Db connected successfully");
+  await db.sync({ force: true });
+} catch (error) {
+  console.error(
+    `[server error] an error occurred: ${error},\n [DETAIL]: ${error.stack}`
+  );
+}
+
 io.on("connection", (socket) => {
   console.log(`> client connected, socket id: ${socket.id}`);
 
