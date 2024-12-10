@@ -83,3 +83,38 @@ TASK TERAKHIR YANG HARUS DISELESAIKAN!!
 12. Setiap error pada catch tampilkan di frontend ( Menyusul )
 - JIKA SEMUA FITUR DIATAS SUDAH SELESAI, BUAT 1 FILE YG BERISI FUNCTION UNTUK MENAMPUNG SEMUA ERROR PADA APLIKASI, JADI NANTI FILE TSB AKAN DIPANGGIL KE SEMUA FILE JS.
 - NANTI BUAT FILE BARU KHUSUS UNTUK NANGANIN REALTIME SOCKET IO, JANGAN DIGABUNG DGN INDEX.JS!
+
+// dev: new logic implemantation
+// FIX LOGIC
+/* 
+# TABEL: FollowersFollowing
+1. Parameter yang dibutuhkan: userId_selected, userId_authorized
+Follback algoritm ( update ) function name: follback()
+2. Get data dari tabel yang userId = userId_selected dan userId_following = userId_authorized
+3. jika ada, cek nilai userId_followers. jika null -> user_authorized dan rubah state_followers -> 1
+4. jika ada, cek nilai userId_followers. jika != null -> cek state_followers: jika ( 0 ->  1 ) / ( 1 -> 0 )
+5. Jika proses no 3 dan 4 berhasil maka: Get lagi data dari tabel yang userId = userId_authorized dan userId_following = userId_selected
+6. jika ada, cek nilai userId_followers. jika null -> userId_selected dan rubah state_followers -> 1
+7. jika ada, cek nilai userId_followers. jika != null -> cek state_followers: jika ( 0 ->  1 ) / ( 1 -> 0 )
+return 
+
+Follow unfollow algoritm ( update ) function name: followOrUnfollow()
+8. Get data dari tabel yang userId = userId_selected dan userId_followers = userId_authorized
+9. Jika ada cek state_followers, jika true -> false, jika false -> true
+10. Get data dari tabel yang userId = userId_authorized dan userId_following = userId_selected
+11. Jika ada cek state_following, jika true -> false, jika false -> true
+return
+
+Follow algoritm ( create ) function name: follow()
+12. Jika ke dua function tersebut tidak dijalankan maka buat 2 record baru:
+13. first record add following for user auth: { 
+  userId: userId_authorized,
+  userId_following: userId_selected,
+  state_following: 1
+}
+14. second record add followers for user selected: { 
+  userId: userId_selected,
+  userId_followers: userId_authorized,
+  state_followers: 1
+}
+*/ 

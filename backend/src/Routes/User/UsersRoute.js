@@ -26,6 +26,6 @@ user.get("/profile/:userId/fav-posts", verifyToken, favoritedPosts);
 user.get("/profile/:userId/comments-history", verifyToken, commentsHistory);
 user.get("/author/:username", getUser);
 user.get("/token", refreshToken);
-user.get("/other-profile-user/:id", getProfileOtherUser);
+user.get("/other-profile-user/:id/:userId_authorized", getProfileOtherUser);
 
 export default user;

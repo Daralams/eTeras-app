@@ -68,8 +68,8 @@ function Navbar() {
             >
               <HiMenuAlt1 />
             </button>
-            <NavLink to="/" className="text-2xl font-bold font-mono text-white">
-              SiBlogger
+            <NavLink to="/" className="text-3xl font-bold text-white">
+              eTeras
             </NavLink>
           </div>
           {/* Menu untuk layar besar */}

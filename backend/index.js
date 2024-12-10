@@ -36,6 +36,9 @@ import {
   showConversationContentById,
   sendMessage,
 } from "./src/Controllers/Chats/ChatsController.js";
+// send email
+import sendEmailRoute from "./src/Routes/Email/SendEmailRoute.js";
+import FollowersFollowingRoute from "./src/Routes/FollowersFollowing/FollowersFollowingRoute.js";
 // get user by id
 import { getUserById } from "./src/Controllers/User/UsersController.js";
 import { getPostBySlug } from "./src/Controllers/Posts/PostsController.js";
@@ -64,6 +67,8 @@ app.use(ReplyRoutes);
 app.use(likeDislikePostRouter);
 app.use(searchRoute);
 app.use(ChatsRouter);
+app.use(sendEmailRoute);
+app.use(FollowersFollowingRoute);
 
 io.on("connection", (socket) => {
   console.log(`> client connected, socket id: ${socket.id}`);
@@ -76,13 +81,7 @@ io.on("connection", (socket) => {
 
   // comments realtime
   socket.on("comment-proccess", async (sendComment) => {
-    console.log(sendComment);
-    await comments(
-      { body: sendComment },
-      {
-        status: (code) => ({ json: (response) => console.log(response) }),
-      }
-    );
+    console.log("User comments: ", sendComment);
     socket.broadcast.emit("recent-comments", sendComment);
   });
 

@@ -1,18 +1,31 @@
-import Navbar from '../../components/Navbar'
-import Footer from '../../components/Footer'
-import HeroSection from './HeroSection'
-import CategorySection from './CategorySection'
-import {Link} from 'react-router-dom'
+import { useState } from "react";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import HeroSection from "./HeroSection";
+import ContentSection from "./ContentSection";
+import ContactSection from "./ContactSection";
+import CategorySection from "./CategorySection";
+import Loading from "../../components/Loading";
 
-function LandingPage() {
+const LandingPage = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  setTimeout(() => setIsLoading(false), 2000);
   return (
     <>
-    <Navbar/>
-    <HeroSection/>
-    <CategorySection/>
-    <Footer/>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <>
+          <Navbar />
+          <HeroSection />
+          <ContentSection />
+          <ContactSection />
+          {/* <CategorySection /> */}
+          <Footer />
+        </>
+      )}
     </>
-    )
-}
+  );
+};
 
-export default LandingPage
+export default LandingPage;

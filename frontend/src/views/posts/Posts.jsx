@@ -9,6 +9,7 @@ import io from "socket.io-client";
 import CardPosts from "../../components/CardPosts";
 import Footer from "../../components/Footer";
 import Loading from "../../components/Loading.jsx";
+import no_post_available from "../../../public/assets/no_post_available.png";
 
 const Posts = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -73,14 +74,30 @@ const Posts = () => {
       ) : (
         <>
           <Navbar />
-          <CardPosts userId={userId} posts={posts} socket={socket} />
           {error ? (
-            <div className="flex justify-center items-center w-full h-screen text-3xl font-extrabold font-mono">
-              {msg}!
+            <div className="flex flex-col justify-center items-center p-4 md:p-8 mt-8">
+              <div className="mb-6">
+                <img
+                  src={no_post_available}
+                  alt="no post mockup"
+                  className="w-full max-w-md mx-auto"
+                />
+              </div>
+              <div className="text-md md:text-xl font-extrabold font-mono text-center text-gray-700 mb-4">
+                "Oops! It looks like there are no posts yet. Start sharing by
+                creating your first post!"
+              </div>
+              <Link
+                to="/create-post"
+                className="bg-indigo-600 text-white font-bold px-4 py-2 hover:bg-indigo-500 rounded"
+              >
+                Let's create!
+              </Link>
             </div>
           ) : (
             ""
           )}
+          <CardPosts userId={userId} posts={posts} socket={socket} />
           <Footer />
         </>
       )}

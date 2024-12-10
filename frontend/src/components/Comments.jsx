@@ -624,7 +624,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
               {userProfilePhoto ? (
                 <img
                   src={userProfilePhoto}
-                  className="flex justify-center items-center w-[38px] h-[35px] rounded-full overflow-hidden object-cover"
+                  className="flex justify-center items-center w-[35px] h-[35px] rounded-full overflow-hidden object-cover"
                 />
               ) : (
                 <div className="flex justify-center items-center text-white font-bold font-mono text-md p-3 w-[35px] h-[35px] bg-indigo-600 rounded-full">
@@ -659,7 +659,7 @@ const Comments = ({ post, userId, userNameIsLoggin, token }) => {
               {userProfilePhoto ? (
                 <img
                   src={userProfilePhoto}
-                  className="flex justify-center items-center w-[38px] h-[35px] rounded-full overflow-hidden object-cover"
+                  className="flex justify-center items-center w-[35px] h-[35px] rounded-full overflow-hidden object-cover"
                 />
               ) : (
                 <div className="flex justify-center items-center text-white font-bold font-mono text-md p-3 w-[35px] h-[35px] bg-indigo-600 rounded-full">

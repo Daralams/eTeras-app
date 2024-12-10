@@ -1,15 +1,13 @@
 import { Sequelize, Op } from "sequelize";
 import path from "path";
 import fs from "node:fs";
-// import bcrypt from 'bcryptjs'
-// import jwt from 'jsonwebtoken'
 import Users from "../../Models/UsersModel.js";
 import Posts from "../../Models/PostsModel.js";
 import Category from "../../Models/CategoryModel.js";
 import Likes from "../../Models/LikesModel.js";
 import Comments from "../../Models/CommentsModel.js";
 import ReplyComment from "../../Models/ReplyCommentModel.js";
-import user from "../../Routes/User/UsersRoute.js";
+import FollowersFollowing from "../../Models/FollowersFollowingModel.js";
 
 export const dashboard = async (req, res) => {
   try {
@@ -279,23 +277,10 @@ export const commentsHistory = async (req, res) => {
       where: { id: req.params.userId },
     });
     if (!checkUserId) return res.sendStatus(404);
-
-    // const getCommentsHistory = await Comments.findAll({
-    //   where: { userId: req.params.userId },
-    //   include: [
-    //     {model: Posts},
-    //     {model: ReplyComment
-    //     }]
-    // })
-
-    // percobaan
-    // problem query ini:
-    // 1. Gabisa nampilin comment yg ga memiliki ReplyComment
-    // NOTE: HARUS DI FIX LG QUERY NYA!
     const getCommentsHistory = await Posts.findAll({
       attributes: ["id", "title", "slug", "createdAt"],
       include: [
-        { model: Users, attributes: ["id", "username"] },
+        { model: Users, attributes: ["id", "username", "profile_photo_url"] },
         {
           model: Comments,
           required: true,
@@ -305,14 +290,19 @@ export const commentsHistory = async (req, res) => {
           include: [
             {
               model: ReplyComment,
-              // where: { userId: req.params.userId },
               where: {
                 [Op.or]: [{ userId: req.params.userId }],
               },
-              include: { model: Users, attributes: ["id", "username"] },
+              include: {
+                model: Users,
+                attributes: ["id", "username", "profile_photo_url"],
+              },
               required: false,
             },
-            { model: Users, attributes: ["id", "username"] },
+            {
+              model: Users,
+              attributes: ["id", "username", "profile_photo_url"],
+            },
           ],
         },
       ],
@@ -349,10 +339,22 @@ export const getProfileOtherUser = async (req, res) => {
       where: {
         id: req.params.id,
       },
-      include: {
-        model: Posts,
-        attributes: ["id"],
-      },
+      include: [
+        {
+          model: FollowersFollowing,
+          where: {
+            [Op.or]: [
+              { userId_followers: req.params.userId_authorized },
+              { userId_following: req.params.userId_authorized },
+            ],
+          },
+          required: false,
+        },
+        {
+          model: Posts,
+          attributes: ["id"],
+        },
+      ],
     });
     if (!request)
       return res.status(404).json({

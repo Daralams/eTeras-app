@@ -7,6 +7,7 @@ import Category from "../../Models/CategoryModel.js";
 import Likes from "../../Models/LikesModel.js";
 import Comments from "../../Models/CommentsModel.js";
 import ReplyComment from "../../Models/ReplyCommentModel.js";
+import FollowersFollowing from "../../Models/FollowersFollowingModel.js";
 
 export const getPost = async (req, res) => {
   try {
@@ -82,6 +83,7 @@ export const mostLikePosts = async (req, res) => {
       "id",
       "title",
       "slug",
+      "imageUrl",
       "createdAt",
       [Sequelize.fn("COUNT", Sequelize.col("likes.postId")), "total_likes"],
     ],
@@ -123,7 +125,11 @@ export const getPosts = async (req, res) => {
     const response = await Posts.findAll({
       attributes: { exclude: ["content"] },
       include: [
-        { model: Users, attributes: ["id", "username", "profile_photo_url"] },
+        {
+          model: Users,
+          attributes: ["id", "username", "profile_photo_url"],
+          include: { model: FollowersFollowing },
+        },
         { model: Category, attributes: ["id", "name", "slug"] },
         {
           model: Likes,
@@ -207,7 +213,7 @@ export const createNewPost = async (req, res) => {
     const extension = path.extname(imgFile.name);
     const fileName = imgFile.md5 + extension;
     const imgUrl = `${req.protocol}://${req.get("host")}/images/${fileName}`;
-    const allowedType = [".png", ".jpg", ".jpeg"];
+    const allowedType = [".png", ".jpg", ".jpeg", ".gif"];
 
     // post validation
     if (!title || title.trim().length < 1)
@@ -232,7 +238,7 @@ export const createNewPost = async (req, res) => {
     if (!allowedType.includes(extension.toLowerCase()))
       return res.status(422).json({
         status: "failed",
-        msg: "invalid image type, image must .png .jpg .jpg for the type!",
+        msg: "invalid image type, image must .png .jpg .jpeg .gif for the type!",
       });
 
     if (imgFileSize > 5_000_000)
@@ -335,13 +341,13 @@ export const editPost = async (req, res) => {
       const imgFileSize = imgFile.size;
       const extension = path.extname(imgFile.name);
       fileName = imgFile.md5 + extension;
-      const allowedType = [".png", ".jpg", ".jpeg"];
+      const allowedType = [".png", ".jpg", ".jpeg", ".gif"];
 
       // images validation
       if (!allowedType.includes(extension.toLowerCase()))
         return res.status(422).json({
           status: "failed",
-          msg: "invalid image type, image must .png .jpg .jpg for the type!",
+          msg: "invalid image type, image must .png .jpg .jpeg .gif for the type!",
         });
 
       if (imgFileSize > 5_000_000)

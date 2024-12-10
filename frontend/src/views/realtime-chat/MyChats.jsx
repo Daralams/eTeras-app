@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar.jsx";
 import ChatItem from "../../components/chat-components/ChatItem";
 import Loading from "../../components/Loading.jsx";
+import Footer from "../../components/Footer.jsx";
 
 const MyChats = () => {
   const [userIdIsLoggin, setUserIdIsLoggin] = useState(null);
@@ -37,6 +38,7 @@ const MyChats = () => {
         <>
           <Navbar />
           <ChatItem userIdIsLoggin={userIdIsLoggin} />
+          <Footer />
         </>
       )}
     </>

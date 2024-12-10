@@ -14,7 +14,8 @@ import { verifyToken } from "../../Middleware/verifyToken.js";
 
 const PostRouter = express.Router();
 PostRouter.get("/post", getPost);
-PostRouter.get("/posts", verifyToken, getPosts);
+// PostRouter.get("/posts", verifyToken, getPosts);
+PostRouter.get("/posts", getPosts);
 PostRouter.get("/post/:id", getPostById);
 PostRouter.get("/post/userId/:id", verifyToken, getPostsByUserId);
 PostRouter.get("/post/userId/:id/mostLike", mostLikePosts);

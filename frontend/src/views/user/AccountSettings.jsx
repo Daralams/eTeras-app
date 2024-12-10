@@ -10,6 +10,7 @@ import Loading from "../../components/Loading";
 import PopupSuccess from "../../components/popups/PopupSuccess";
 import AuthFailed from "../../components/popups/AuthFailed";
 import ConfirmPopup from "../../components/popups/ConfirmPopup";
+import Footer from "../../components/Footer";
 
 const AccountSettings = () => {
   const [token, setToken] = useState("");
@@ -73,9 +74,16 @@ const AccountSettings = () => {
   };
 
   const loadImage = (e) => {
-    const userProfilePhoto = e.target.files[0];
-    setUserProfilePhotoName(userProfilePhoto);
-    setPreviewImgProfile(URL.createObjectURL(userProfilePhoto));
+    try {
+      const userProfilePhoto = e.target.files[0];
+      console.log({ userProfilePhoto });
+      setUserProfilePhotoName(userProfilePhoto);
+      setPreviewImgProfile(URL.createObjectURL(userProfilePhoto));
+    } catch (error) {
+      setIsError(error);
+      setErrorMsg(error.message);
+      console.error(`[client error] an error occurred: ${error}`);
+    }
   };
 
   const handleConfirm = async (state) => {
@@ -126,6 +134,7 @@ const AccountSettings = () => {
 
   const updateUserProfile = async (e) => {
     e.preventDefault();
+    const user = await auth();
     const formdata = new FormData();
     formdata.append("username", userName);
     formdata.append("email", userEmail);
@@ -139,7 +148,7 @@ const AccountSettings = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${user.accessToken}`,
           },
         }
       );
@@ -153,7 +162,7 @@ const AccountSettings = () => {
       }
     } catch (error) {
       setIsError(true);
-      setErrorMsg(error);
+      setErrorMsg(error.response.data.msg);
       console.error(`[client error] an error occurred: ${error}`);
     }
   };
@@ -166,142 +175,144 @@ const AccountSettings = () => {
       ) : (
         <>
           <SecondNavbar title="Settings" />
-          <div className="m-5">
-            {successUpdateProfile && (
-              <PopupSuccess
-                state={successUpdateProfile}
-                title={successPopupTitle}
-                message={successPopupMsg}
-                onClose={resetSuccessUpdated}
-              />
-            )}
-            {isError && (
-              <div className="fixed top-5 right-5 z-50 text-white rounded-md shadow-lg">
-                <AuthFailed error={errorMsg} />
-              </div>
-            )}
-            {isShowConfirmBox && isDeleteProfile && (
-              <ConfirmPopup
-                title={confirmTitle}
-                message={confirmMsg}
-                onConfirmDelete={deleteProfilePhoto}
-                onCloseConfirmBox={() => setIsShowConfirmBox(false)}
-              />
-            )}
-            {isShowConfirmBox && isDiscardChanges && (
-              <ConfirmPopup
-                title={confirmTitle}
-                message={confirmMsg}
-                onConfirmDelete={discardChanges}
-                onCloseConfirmBox={() => setIsShowConfirmBox(false)}
-              />
-            )}
-            <form
-              className="flex flex-col justify-center items-center mt-4"
-              onSubmit={updateUserProfile}
-            >
-              <div className="shadow-lg rounded-md w-1/2 p-4">
-                <div className="mt-5 flex flex-col justify-center items-center">
-                  {previewImgProfile ? (
-                    <div className="flex justify-center items-center  w-[20vw] h-[20vw] max-w-52 max-h-52 min-w-32 min-h-32 sm:w-32 sm:h-32 rounded-full overflow-hidden border-2 border-indigo-600">
+          <div className="min-h-screen">
+            <div className="m-5 flex flex-col items-center">
+              {successUpdateProfile && (
+                <PopupSuccess
+                  state={successUpdateProfile}
+                  title={successPopupTitle}
+                  message={successPopupMsg}
+                  onClose={resetSuccessUpdated}
+                />
+              )}
+              {isError && (
+                <div className="fixed top-5 right-5 z-50 text-white rounded-md shadow-lg">
+                  <AuthFailed error={errorMsg} />
+                </div>
+              )}
+              {isShowConfirmBox && isDeleteProfile && (
+                <ConfirmPopup
+                  title={confirmTitle}
+                  message={confirmMsg}
+                  onConfirmDelete={deleteProfilePhoto}
+                  onCloseConfirmBox={() => setIsShowConfirmBox(false)}
+                />
+              )}
+              {isShowConfirmBox && isDiscardChanges && (
+                <ConfirmPopup
+                  title={confirmTitle}
+                  message={confirmMsg}
+                  onConfirmDelete={discardChanges}
+                  onCloseConfirmBox={() => setIsShowConfirmBox(false)}
+                />
+              )}
+              <form
+                className="w-full max-w-lg bg-white shadow-md rounded-md p-6 border"
+                onSubmit={updateUserProfile}
+              >
+                <div className="flex flex-col items-center mb-5">
+                  <div className="relative w-[20vw] h-[20vw] max-w-52 max-h-52 min-w-32 min-h-32 sm:w-32 sm:h-32 rounded-full overflow-hidden border-2 border-indigo-600">
+                    {previewImgProfile ? (
                       <img
                         src={previewImgProfile}
-                        alt="preview img profile"
+                        alt="Profile"
                         className="w-full h-full object-cover"
                       />
-                    </div>
-                  ) : (
-                    <div className="flex justify-center items-center  w-[20vw] h-[20vw] max-w-52 max-h-52 min-w-32 min-h-32 sm:w-32 sm:h-32 bg-indigo-400 rounded-full">
-                      <p className="font-bold text-3xl text-white">
+                    ) : (
+                      <div className="flex items-center justify-center w-[20vw] h-[20vw] max-w-52 max-h-52 min-w-32 min-h-32 sm:w-32 sm:h-32 bg-indigo-500 rounded-full text-white text-2xl font-bold">
                         {userName[0]}
-                      </p>
-                    </div>
-                  )}
-                  <div className="flex gap-2">
-                    <div
-                      className=" mt-3 w-8 h-8 p-2 bg-red-500 text-white cursor-pointer rounded relative"
-                      onClick={() => handleConfirm("delete")}
-                    >
-                      <MdDelete />
-                    </div>
-                    <div className=" mt-3 w-8 h-8 p-2 bg-blue-500 text-white cursor-pointer rounded relative">
+                      </div>
+                    )}
+                    <label className="absolute inset-0 flex items-center justify-center cursor-pointer opacity-0 hover:opacity-100 bg-black bg-opacity-50 text-white">
                       <FaRegEdit />
                       <input
                         type="file"
-                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        className="hidden"
                         onChange={loadImage}
                       />
-                    </div>
+                    </label>
+                  </div>
+                  <div
+                    className=" mt-3 w-8 h-8 p-2 bg-red-500 text-white cursor-pointer rounded relative"
+                    onClick={() => handleConfirm("delete")}
+                  >
+                    <MdDelete />
                   </div>
                 </div>
-                <div className="mb-2">
-                  <label htmlFor="username">Username</label>
-                  <br />
-                  <input
-                    type="text"
-                    className="mt-2 py-2 px-4 border-[1px] border-slate-950 rounded-md w-full"
-                    value={userName}
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full mt-1 p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={userName}
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold">About</label>
+                    <textarea
+                      className="w-full mt-1 p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={userAbout}
+                      onChange={(e) => setUserAbout(e.target.value)}
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold">Email</label>
+                    <input
+                      type="email"
+                      className="w-full mt-1 p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={userEmail}
+                      onChange={(e) => setUserEmail(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold">
+                      Date of Birth
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full mt-1 p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={userDateBirth}
+                      onChange={(e) => setUserDateBirth(e.target.value)}
+                      required="true"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold">
+                      Joined at
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full mt-1 p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={userRegisterAt}
+                      readOnly="1"
+                    />
+                  </div>
                 </div>
-                <div className="mb-2">
-                  <label htmlFor="about">About</label>
-                  <br />
-                  <textarea
-                    className="mt-2 py-2 px-4 border-[1px] border-slate-950 rounded-md w-full"
-                    value={userAbout}
-                    onChange={(e) => setUserAbout(e.target.value)}
-                  />
+
+                <div className="mt-5 flex justify-between">
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700"
+                    onClick={() => handleConfirm("discard")}
+                  >
+                    Discard
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-700"
+                  >
+                    Save Changes
+                  </button>
                 </div>
-                <div className="mb-2">
-                  <label htmlFor="email">Email</label>
-                  <br />
-                  <input
-                    type="email"
-                    className="mt-2 py-2 px-4 border-[1px] border-slate-950 rounded-md w-full"
-                    value={userEmail}
-                    onChange={(e) => setUserEmail(e.target.value)}
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="date_of_birth">Date of birth</label>
-                  <br />
-                  <input
-                    type="date"
-                    className="mt-2 py-2 px-4 border-[1px] border-slate-950 rounded-md w-full"
-                    value={userDateBirth}
-                    onChange={(e) => setUserDateBirth(e.target.value)}
-                    required="true"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="joined_at">Joined at</label>
-                  <br />
-                  <input
-                    type="date"
-                    className="mt-2 py-2 px-4 border-[1px] border-slate-950 rounded-md w-full"
-                    value={userRegisterAt}
-                    readOnly="1"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2 m-2">
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-white font-bold bg-indigo-600 hover:bg-indigo-400 rounded"
-                >
-                  Edit profile
-                </button>
-                <div
-                  type="submit"
-                  className="px-4 py-2 text-white font-bold bg-slate-500 hover:bg-slate-400 rounded cursor-pointer"
-                  onClick={() => handleConfirm("discard")}
-                >
-                  Discard
-                </div>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
+          <Footer />
         </>
       )}
     </>

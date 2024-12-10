@@ -7,6 +7,7 @@ import Register from "../auth/Register";
 import LandingPage from "../views/landing-page/LandingPage";
 // landing page user search result
 import LandingUserSearchResult from "../views/page-other-user/LandingUserSearchResult";
+import FollowersFollowing from "../views/followers_following/FollowersFollowing";
 // user
 import Dashboard from "../views/user/Dashboard";
 import AccountSettings from "../views/user/AccountSettings";
@@ -47,6 +48,10 @@ const Router = () => {
           <Route
             path={`/search/author/:id/:username`}
             element={<LandingUserSearchResult />}
+          />
+          <Route
+            path={`/:username/:id/followers_following`}
+            element={<FollowersFollowing />}
           />
           <Route path="/chats" element={<MyChats />} />
           <Route

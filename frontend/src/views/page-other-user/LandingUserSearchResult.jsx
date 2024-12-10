@@ -7,6 +7,7 @@ import SecondNavbar from "../../components/SecondNavbar";
 import AuthorProfile from "./AuthorProfile";
 import AuthorPosts from "./AuthorPosts";
 import Loading from "../../components/Loading.jsx";
+import Footer from "../../components/Footer.jsx";
 
 const LandingUserSearchResult = () => {
   const [userIdIsLoggin, setUserIdIsLoggin] = useState(null);
@@ -35,8 +36,11 @@ const LandingUserSearchResult = () => {
       ) : (
         <>
           <SecondNavbar />
-          <AuthorProfile userIdIsLoggin={userIdIsLoggin} id={id} />
-          <AuthorPosts id={id} />
+          <div className="flex flex-col min-h-screen">
+            <AuthorProfile userIdIsLoggin={userIdIsLoggin} id={id} />
+            <AuthorPosts id={id} />
+          </div>
+          <Footer />
         </>
       )}
     </>
