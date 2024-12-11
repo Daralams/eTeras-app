@@ -44,7 +44,7 @@ import { getUserById } from "./src/Controllers/User/UsersController.js";
 import { getPostBySlug } from "./src/Controllers/Posts/PostsController.js";
 
 dotenv.config();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
@@ -125,4 +125,4 @@ io.on("connection", (socket) => {
 
 export { io };
 
-server.listen(port, () => console.log(`Server running on port ${port}...`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}...`));
