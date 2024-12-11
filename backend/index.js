@@ -95,15 +95,6 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("recent-comments", sendComment);
   });
 
-  // recent chats ~ send user id is login for get recent chats ~ blm bener ngaff (kerjain komen dlu)
-  // socket.on("send-userIdIsLoggin", async (userIdIsLoggin) => {
-  //   console.log("User sedang login id: " + userIdIsLoggin);
-  //   await showConversationsUserIsLoggin(userIdIsLoggin);
-
-  //   // show recent chats by user id is login
-  //   socket.broadcast.emit("recent-chats", userIdIsLoggin);
-  // });
-
   // chatting
   socket.on("send-message", async (msg_data) => {
     console.log({ msg_data });
@@ -121,31 +112,10 @@ io.on("connection", (socket) => {
     );
     socket.broadcast.emit("receive-message", msg_data);
 
-    // RECENT CHAT MASIH BELUM BENAR, ADA BUG DI PENGEMALIAN RESPONSE YANG TIDAK SESUAI DENGAN API CONVERSATION!
-    // const getDataReceiver = await getUserById({ params: { userId: id_user } });
-    // console.log("Data receiver: ", getDataReceiver);
+    // dev
     socket.broadcast.emit("get-recent-chats", {
       id: msg_data.receiver_id,
     });
-
-    // // Panggil fungsi untuk mendapatkan recent chats
-    // const recentChats = await showConversationsUserIsLoggin(
-    //   id_user,
-    //   // { params: id_user },
-    //   {
-    //     status: (code) => ({
-    //       json: (data) => data,
-    //     }),
-    //   }
-    // );
-    // console.log(
-    //   "Recent chats terbaru: ",
-    //   recentChats,
-    //   "Penerima recent chats: ",
-    //   id_user
-    // );
-    // // Kirim recent chats secara realtime ke user terkait
-    // socket.broadcast.emit("update-recent-chats", recentChats);
   });
 
   socket.on("disconnect", () => {
