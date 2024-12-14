@@ -59,6 +59,7 @@ function Login() {
             className="border-2 p-2 w-full d-block mb-3"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="off"
           />
           <label htmlFor="password">Password</label>
           <input
@@ -67,6 +68,7 @@ function Login() {
             className="border-2 p-2 w-full d-block mb-3"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="off"
           />
           {errorMsg ? <AuthFailed error={errorMsg} /> : ""}
           <button

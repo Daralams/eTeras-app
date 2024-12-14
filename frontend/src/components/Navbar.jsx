@@ -137,7 +137,7 @@ function Navbar() {
             <button onClick={handleSearchBtn}>
               <BiSearchAlt className="text-3xl text-white" />
             </button>
-            <Link to="https://github.com/Daralams" target="_blank">
+            <Link to="https://github.com/Daralams/eTeras-app" target="_blank">
               <FaGithub className="text-3xl text-white cursor-pointer" />
             </Link>
           </div>
